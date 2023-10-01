@@ -16,7 +16,18 @@ typedef struct __attribute__((__packed__))
 
 
 void ping(uint8_t node) {
-	// ...?
+	ping_packet_t packet;
+	packet.timestamp_out = lownet_get_time();
+	packet.origin = lownet_get_device_id();
+
+	lownet_frame_t frame;
+	frame.source = lownet_get_device_id();
+	frame.destination = node;
+	frame.protocol = LOWNET_PROTOCOL_PING;
+	frame.length = sizeof(ping_packet_t);
+	memcpy(&frame.payload, &packet, sizeof(ping_packet_t));
+
+	lownet_send(&frame);
 }
 
 
@@ -26,5 +37,16 @@ void ping_receive(const lownet_frame_t* frame) {
 		return;
 	}
 
-	// ...?
+	if (frame->destination != lownet_get_device_id()
+			&& frame->destination != 0xFF)
+		// Not intended for us
+		return;
+
+	lownet_frame_t reply;
+	reply.source = lownet_get_device_id();
+	reply.destination = frame->source;
+	reply.protocol = frame->protocol;
+	memcpy(&reply.payload, frame->payload, sizeof(ping_packet_t));
+	((ping_packet_t*) &reply.payload)->timestamp_back = lownet_get_time();
+	lownet_send(&reply);
 }
