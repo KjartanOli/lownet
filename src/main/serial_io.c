@@ -18,19 +18,19 @@
 
 
 // Constants and definitions.
-const TickType_t 	service_delay = 50 / portTICK_PERIOD_MS;
-const TickType_t 	timeout_read = 5000 / portTICK_PERIOD_MS;
-const char* 		PROMPT_TOKEN = "> ";
-const char*			MESSAGE_SYNC = "SYNC // FIRMWARE READY";
+const TickType_t service_delay = 50 / portTICK_PERIOD_MS;
+const TickType_t timeout_read = 5000 / portTICK_PERIOD_MS;
+const char* PROMPT_TOKEN = "> ";
+const char* MESSAGE_SYNC = "SYNC // FIRMWARE READY";
 
 // Internal data structures
 
 void svc_serial(void* pvTaskParams);
 
 struct {
-	QueueHandle_t   queue_write;
-	QueueHandle_t   queue_read;
-	TaskHandle_t 	service;
+	QueueHandle_t queue_write;
+	QueueHandle_t queue_read;
+	TaskHandle_t service;
 } serial_system;
 
 void init_serial_service() {
@@ -44,14 +44,14 @@ void init_serial_service() {
 	}
 
 	xTaskCreatePinnedToCore(
-		svc_serial,
-		"serial_io_service",
-		4096,
-		NULL,
-		SERIAL_SERVICE_PRIO,
-		&serial_system.service,
-		SERIAL_SERVICE_CORE
-	);
+													svc_serial,
+													"serial_io_service",
+													4096,
+													NULL,
+													SERIAL_SERVICE_PRIO,
+													&serial_system.service,
+													SERIAL_SERVICE_CORE
+													);
 
 	serial_write_line(MESSAGE_SYNC);
 }
@@ -122,7 +122,7 @@ void svc_serial(void* pvTaskParams) {
 		if (done) {
 			xQueueSend(serial_system.queue_read, in_msg, 0);
 			memset(in_msg, 0, MSG_BUFFER_LENGTH);
-			
+
 			done = 0;
 			at = 0;
 		}
@@ -155,7 +155,7 @@ int serial_read_line(char* buffer) {
 	if (xQueueReceive(serial_system.queue_read, buffer, timeout_read) == pdTRUE) {
 		return 0;
 	}
-	
+
 	// No input, timed out.
 	return -1;
 }

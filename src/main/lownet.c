@@ -28,21 +28,21 @@
 #define TIMEOUT_STARTUP ((TickType_t)(5000 / portTICK_PERIOD_MS))
 
 struct {
-	TaskHandle_t 		service;
+	TaskHandle_t service;
 
-	EventGroupHandle_t	events;
-	QueueHandle_t		inbound;
-	lownet_recv_fn 		dispatch;
+	EventGroupHandle_t events;
+	QueueHandle_t inbound;
+	lownet_recv_fn dispatch;
 
-	lownet_identifier_t	identity;
+	lownet_identifier_t identity;
 	lownet_identifier_t broadcast;
 
 	// Network timing details.
-	lownet_time_t		sync_time;
-	int64_t				sync_stamp;
+	lownet_time_t sync_time;
+	int64_t sync_stamp;
 } net_system;
 
-uint8_t	net_initialized = 0;
+uint8_t net_initialized = 0;
 
 // Forward declarations.
 void lownet_service_main(void* pvTaskParam);
@@ -88,7 +88,7 @@ void lownet_init(lownet_recv_fn receive_cb) {
 		lownet_service_main,
 		"lownet_service",
 		2048,
-		NULL,				// Pass no params into task method.
+		NULL, // Pass no params into task method.
 		LOWNET_SERVICE_PRIO,
 		&net_system.service,
 		LOWNET_SERVICE_CORE
@@ -136,7 +136,7 @@ void lownet_send(const lownet_frame_t* frame) {
 	memcpy(out_frame.payload, frame->payload, frame->length);
 	for (int i = frame->length; i < LOWNET_PAYLOAD_SIZE; ++i) {
 		// Fill any unused payload with noise.  Improves packet entropy
-		//	for encryption purposes etc.
+		// for encryption purposes etc.
 		out_frame.payload[i] |= (uint8_t)(esp_random() & 0x000000FF);
 	}
 
@@ -174,9 +174,9 @@ uint8_t lownet_get_device_id() {
 
 
 // NOTE: Task methods do not return as a rule of thumb; anywhere we
-//	encounter an error state we set the core error bit and kill the
-//	service.  Note we include a 'return;' after such a service kill,
-//	but these lines should never execute.
+// encounter an error state we set the core error bit and kill the
+// service.  Note we include a 'return;' after such a service kill,
+// but these lines should never execute.
 void lownet_service_main(void* pvTaskParam) {
 	// Create an inbound packet queue.
 	net_system.inbound = xQueueCreate(16, sizeof(lownet_frame_t));
@@ -215,7 +215,7 @@ void lownet_service_main(void* pvTaskParam) {
 	esp_now_register_recv_cb(lownet_inbound_handler);
 
 	// Initialization done.  Set the ready bit and then hang  around
-	//	dispatching frames as they arrive.
+	// dispatching frames as they arrive.
 	xEventGroupSetBits(
 		net_system.events,
 		EVENT_CORE_READY
@@ -223,17 +223,17 @@ void lownet_service_main(void* pvTaskParam) {
 
 
 	while (1) {
-		lownet_frame_t 	frame;
+		lownet_frame_t frame;
 		memset(&frame, 0, sizeof(frame));
 
 		// Blocking call to receive from inbound queue.  Task will be blocked until
-		//	queue has data for us.
+		// queue has data for us.
 		if (xQueueReceive(net_system.inbound, &frame, UINT32_MAX) == pdTRUE) {
 			// Check whether the network frame checksum matches computed checksum.
 			if (lownet_crc(&frame) != frame.crc) { continue; }
 
 			// Not strictly to spec but a useful safety valve; if frame has, as a source
-			//	address, the broadcast address, discard it -- something has gone wrong.
+			// address, the broadcast address, discard it -- something has gone wrong.
 			if (frame.source == 0xFF) { continue; }
 
 			// Check whether packet destination is us or broadcast.
@@ -270,12 +270,12 @@ void lownet_service_kill() {
 		vQueueDelete(net_system.inbound);
 	}
 	vTaskDelete(net_system.service);
-	return;	// Should never execute, when this function is called from lownet service.
+	return; // Should never execute, when this function is called from lownet service.
 }
 
 // Inbound frame callback is executed from the context of the ESPNOW task!
-//	It is of great importance that this callback function not block, and
-//	return quickly to avoid locking up the wifi driver.
+// It is of great importance that this callback function not block, and
+// return quickly to avoid locking up the wifi driver.
 void lownet_inbound_handler(const esp_now_recv_info_t * info, const uint8_t* data, int len) {
 	// Discard any frames that don't match the size of our network frame.
 	if (len != sizeof(lownet_frame_t)) {
