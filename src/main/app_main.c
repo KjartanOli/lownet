@@ -44,6 +44,13 @@ void date()
 	serial_write_line(buffer);
 }
 
+void id()
+{
+	char buffer[5];
+	sprintf(&buffer, "0x%x", lownet_get_device_id());
+	serial_write_line(buffer);
+}
+
 void app_main(void)
 {
 	char msg_in[MSG_BUFFER_LENGTH];
@@ -84,6 +91,8 @@ void app_main(void)
 					}
 				else if (!strcmp(command, "date"))
 					date();
+				else if (!strcmp(command, "id"))
+					id();
 			} else if (msg_in[0] == '@') {
 				char* dest = strtok(msg_in + 1, " ");
 				char* message = strtok(NULL, "\n");
