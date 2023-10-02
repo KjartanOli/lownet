@@ -44,59 +44,6 @@ void date()
 	serial_write_line(buffer);
 }
 
-// Usage: ctoi(C)
-// Pre:   C is a valid hexadecimal character
-// Value: The decimal value of C as a hexadecimal character or 255 if
-//        C is not a valid hexadecimal character
-uint8_t ctoi(char c)
-{
-	if ('0' <= c && c <= '9')
-		return c - '0';
-	else if ('a' <= c && c <= 'f')
-		return 10 + c - 'a';
-	else if ('A' <= c && c <= 'F')
-		return 10 + c - 'A';
-	else
-		return 255;
-}
-
-// Usage: parse_id(STR, DEST)
-// Pre:   STR != NULL,
-//        3 <= strlen(STR) <= 4,
-//        STR is a valid hexadecimal number,
-//        DEST != NULL
-// Value: true if STR was successfully parsed into a valid id
-// Post: The value pointed to by DEST has been set to the id parsed
-//       from STR
-bool parse_id(char* str, uint8_t* dest)
-{
-	if (!str)
-		return false;
-
-	size_t length = strlen(str);
-	if (length < 3 || length > 4 || str[0] != '0' || str[1] != 'x')
-		return false;
-
-	if (length == 3)
-		{
-			uint8_t t = ctoi(str[2]);
-			if (t == 255)
-				return false;
-			*dest = t;
-		}
-
-	uint8_t t = ctoi(str[2]);
-	if (t == 255)
-		return false;
-	*dest = t * 16;
-	t = ctoi(str[3]);
-	if (t == 255)
-		return false;
-	*dest += t;
-
-	return true;
-}
-
 void app_main(void)
 {
 	char msg_in[MSG_BUFFER_LENGTH];
