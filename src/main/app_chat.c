@@ -21,14 +21,18 @@ void chat_receive(const lownet_frame_t* frame) {
 		char buffer[4 + 7 + 1];
 		sprintf(buffer, "0x%x says: ", frame->source);
 		serial_write_line(buffer);
-		serial_write_line((char*) frame->payload);
 	} else {
 		// id + " shouts: " + null terminator
 		char buffer[4 + 9 + 1];
 		sprintf(buffer, "0x%x shouts: ", frame->source);
 		serial_write_line(buffer);
-		serial_write_line((char*) frame->payload);
+
 	}
+
+	char buffer[frame->length + 1];
+	memcpy(&buffer, &frame->payload, frame->length);
+	buffer[frame->length] = '\0';
+	serial_write_line(buffer);
 }
 
 // Usage: chat_valid_message(MESSAGE)
@@ -61,6 +65,7 @@ void chat_shout(const char* message) {
 	frame.protocol = LOWNET_PROTOCOL_CHAT;
 	frame.length = length;
 	memcpy(&frame.payload, message, length);
+	frame.payload[length] = '\0';
 	lownet_send(&frame);
 }
 
@@ -76,5 +81,6 @@ void chat_tell(const char* message, uint8_t destination) {
 	frame.protocol = LOWNET_PROTOCOL_CHAT;
 	frame.length = length;
 	memcpy(&frame.payload, message, length);
+	frame.payload[length] = '\0';
 	lownet_send(&frame);
 }
