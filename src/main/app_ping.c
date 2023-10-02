@@ -1,4 +1,3 @@
-
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -9,9 +8,9 @@
 
 typedef struct __attribute__((__packed__))
 {
-	lownet_time_t 	timestamp_out;
-	lownet_time_t	timestamp_back;
-	uint8_t 		origin;
+	lownet_time_t timestamp_out;
+	lownet_time_t timestamp_back;
+	uint8_t origin;
 } ping_packet_t;
 
 
