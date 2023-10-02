@@ -126,8 +126,8 @@ void app_main(void)
 								continue;
 							}
 
-						uint8_t dest;
-						if (!parse_id(argument, &dest))
+						uint8_t dest = (uint8_t) hex_to_dec(argument + 2);
+						if (dest == 0)
 							{
 								serial_write_line("Invalid node id\n");
 								continue;
@@ -141,8 +141,8 @@ void app_main(void)
 				char* dest = strtok(msg_in + 1, " ");
 				char* message = strtok(NULL, "\n");
 
-				uint8_t d;
-				if (!parse_id(dest, &d))
+				uint8_t d = (uint8_t) hex_to_dec(dest + 2);
+				if (d == 0)
 					{
 						serial_write_line("Invalid node id\n");
 						continue;
