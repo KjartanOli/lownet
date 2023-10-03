@@ -67,7 +67,8 @@ void app_main(void)
 		memset(msg_out, 0, MSG_BUFFER_LENGTH);
 
 		if (!serial_read_line(msg_in)) {
-			// Quick & dirty input parse.  Presume input length > 0.
+			// Quick & dirty input parse.
+			if (msg_in[0] == 0) continue;
 			if (msg_in[0] == '/') {
 				char* command = strtok(msg_in + 1, " ");
 				char* argument = strtok(NULL, " ");
