@@ -70,7 +70,7 @@ void svc_serial(void* pvTaskParams) {
 	while (1) {
 		while (xQueueReceive(serial_system.queue_write, out_msg, 0) == pdTRUE) {
 			// We can only write up to LEN - 2 characters; penultimate char would
-			//	be newline character '\n' and ultimate char is null terminator '\0'.
+			// be newline character '\n' and ultimate char is null terminator '\0'.
 			char msg_buffer[MSG_BUFFER_LENGTH];
 
 			int end = strlen(out_msg);
@@ -88,7 +88,7 @@ void svc_serial(void* pvTaskParams) {
 			}
 
 			// Write the contents of the internal buffer to standard out (serial output
-			//	in this case).
+			// in this case).
 			printf(msg_buffer);
 			fflush(stdout);
 
@@ -100,7 +100,7 @@ void svc_serial(void* pvTaskParams) {
 			int next = fgetc(stdin);
 
 			// If the result is EOF, then there was nothing there (yet).  In this
-			//	circumstance, sleep a while before checking again.
+			// circumstance, sleep a while before checking again.
 			if (next == EOF) {
 				vTaskDelay(service_delay);
 				continue;
@@ -113,7 +113,7 @@ void svc_serial(void* pvTaskParams) {
 				in_msg[at++] = (char)next;
 			} else {
 				// We've overrun the internal buffer.  Additional characters
-				//	read until a newline is encountered are dumped.
+				// read until a newline is encountered are dumped.
 				at++;
 			}
 		}
