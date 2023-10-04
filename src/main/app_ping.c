@@ -15,16 +15,13 @@ typedef struct __attribute__((__packed__))
 
 
 void ping(uint8_t node) {
-	ping_packet_t packet;
-	packet.timestamp_out = lownet_get_time();
-	packet.origin = lownet_get_device_id();
-
 	lownet_frame_t frame;
 	frame.source = lownet_get_device_id();
 	frame.destination = node;
 	frame.protocol = LOWNET_PROTOCOL_PING;
 	frame.length = sizeof(ping_packet_t);
-	memcpy(&frame.payload, &packet, sizeof(ping_packet_t));
+	((ping_packet_t*) frame.payload)->timestamp_out = lownet_get_time();
+	((ping_packet_t*) frame.payload)->origin = lownet_get_device_id();
 
 	lownet_send(&frame);
 }
