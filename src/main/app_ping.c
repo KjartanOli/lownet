@@ -47,8 +47,8 @@ void ping_receive(const lownet_frame_t* frame) {
 			uint32_t seconds = rtt / LOWNET_TIME_RESOLUTION;
 			uint8_t parts = rtt % LOWNET_TIME_RESOLUTION;
 
-			// reply from + id + rtt: + seconds + unit + part + suffix
-			char buffer[12 + 4 + 5 + 11 + 2 + 3 + 4];
+			// reply from + id + rtt: + seconds + unit + part + suffix + null
+			char buffer[12 + 4 + 5 + 11 + 2 + 3 + 4 + 1];
 			sprintf(buffer, "Reply from: 0x%x RTT: %lus %u/256", frame->source, seconds, parts);
 			serial_write_line(buffer);
 		}
