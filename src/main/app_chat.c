@@ -32,20 +32,21 @@ void chat_receive(const lownet_frame_t* frame) {
 
 // Usage: chat_valid_message(MESSAGE)
 // Pre:   MESSAGE != NULL
-// Value: true if MESSAGE is a valid message, false otherwise
-bool chat_valid_message(const char* message)
+// Value: strlen(MESSAGE) if MESSAGE is a valid message, 0 otherwise
+size_t chat_valid_message(const char* message)
 {
-	size_t length = strlen(message);
-	if (length > LOWNET_PAYLOAD_SIZE)
-		return false;
-
-	for (int i = 0; message[i]; i++)
+	size_t i = 0;
+	for (; message[i]; i++)
 		{
 			if (!util_printable(message[i]))
-				return false;
+				return 0;
 		}
 
-	return true;
+	if (i > LOWNET_PAYLOAD_SIZE)
+		return 0;
+
+
+	return i;
 }
 
 void chat_shout(const char* message) {
@@ -65,10 +66,9 @@ void chat_shout(const char* message) {
 }
 
 void chat_tell(const char* message, uint8_t destination) {
-		if (!(message || chat_valid_message(message)))
-			return;
-
-	size_t length = strlen(message);
+	size_t length = 0;
+	if (!(message || (length = chat_valid_message(message))))
+		return;
 
 	lownet_frame_t frame;
 	frame.source = lownet_get_device_id();
