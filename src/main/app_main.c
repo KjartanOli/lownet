@@ -77,8 +77,9 @@ void app_main(void)
 						command_fun_t command = FIND_COMMAND(name);
 						if (!command)
 							{
-								serial_write_line("Invalid command:");
-								serial_write_line(name);
+								char buffer[17 + strlen(name) + 1];
+								sprintf(buffer, "Invalid command: %s", name);
+								serial_write_line(buffer);
 								continue;
 							}
 						char* args = strtok(NULL, " ");
