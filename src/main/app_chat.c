@@ -14,6 +14,9 @@
 #include "app_chat.h"
 
 void chat_receive(const lownet_frame_t* frame) {
+	if (!(frame->destination == lownet_get_device_id()
+				|| frame->destination == 0xFF))
+		return;
 	if (frame->destination == lownet_get_device_id()) {
 		// This is a tell message, just for us!
 
@@ -21,12 +24,11 @@ void chat_receive(const lownet_frame_t* frame) {
 		char buffer[4 + 7 + 1];
 		sprintf(buffer, "0x%x says: ", frame->source);
 		serial_write_line(buffer);
-	} else {
+	} else if (frame->destination == 0xFF) {
 		// id + " shouts: " + null terminator
 		char buffer[4 + 9 + 1];
 		sprintf(buffer, "0x%x shouts: ", frame->source);
 		serial_write_line(buffer);
-
 	}
 
 	char buffer[frame->length + 1];
