@@ -4,14 +4,16 @@
 #include <stddef.h>
 
 /*
-  A command consists of a name, and a function which accepts a char*
-  ARGS.  The value of ARGS and its interpretation is function defined.
+  A command consists of a name, a description, and a function which
+  accepts a char* ARGS.  The value of ARGS and its interpretation is
+  function defined.
  */
 
 typedef void (*command_fun_t)(char* args);
 typedef struct
 {
 	char* name;
+	char* description;
 	command_fun_t fun;
 } command_t;
 
