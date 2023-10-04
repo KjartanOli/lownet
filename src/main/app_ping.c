@@ -40,14 +40,16 @@ void ping_receive(const lownet_frame_t* frame) {
 
 	if (((ping_packet_t*) frame->payload)->origin == lownet_get_device_id())
 		{
+			lownet_time_t now = lownet_get_time();
 			ping_packet_t* packet = ((ping_packet_t*) frame->payload);
-			lownet_time_t rtt;
-			rtt.seconds = packet->timestamp_back.seconds - packet->timestamp_out.seconds;
-			rtt.parts = packet->timestamp_back.parts - packet->timestamp_out.parts;
+			uint32_t rtt = (now.seconds * LOWNET_TIME_RESOLUTION + now.parts) - (packet->timestamp_out.seconds * LOWNET_TIME_RESOLUTION + packet->timestamp_out.parts);
+
+			uint32_t seconds = rtt / LOWNET_TIME_RESOLUTION;
+			uint8_t parts = rtt % LOWNET_TIME_RESOLUTION;
 
 			// reply from + id + rtt: + seconds + unit + part + suffix
 			char buffer[12 + 4 + 5 + 11 + 2 + 3 + 4];
-			sprintf(buffer, "Reply from: 0x%x RTT: %lus %u/256", frame->source, rtt.seconds, rtt.parts);
+			sprintf(buffer, "Reply from: 0x%x RTT: %lus %u/256", frame->source, seconds, parts);
 			serial_write_line(buffer);
 		}
 	else {
