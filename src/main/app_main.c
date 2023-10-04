@@ -18,13 +18,25 @@ const char* ERROR_UNKNOWN = "ERROR // PROCESSING FAILURE";
 const char* ERROR_COMMAND = "Command error";
 const char* ERROR_ARGUMENT = "Argument error";
 
+void help_command(char*);
+
 const command_t commands[] = {
 	{"shout", "/shout MSG               Broadcast a message.", shout_command},
 	{"tell",  "/tell ID MSG or @ID MSG  Send a message to a specific node", tell_command},
 	{"ping",  "/ping ID                 Check if a node is online", ping_command},
 	{"date",  "/date                    Print the current time", date_command},
-	{"id",    "/id                      Print your ID", id_command}
+	{"id",    "/id                      Print your ID", id_command},
+	{"help",  "/help                    Print this help", help_command}
 };
+
+const size_t NUM_COMMANDS = sizeof commands / sizeof(command_t);
+
+void help_command(char*)
+{
+	for (size_t i = 0; i < NUM_COMMANDS; ++i)
+		serial_write_line(commands[i].description);
+	serial_write_line("Any input not preceded by a '/' or '@' will be treated as a broadcast message.");
+}
 
 void app_frame_dispatch(const lownet_frame_t* frame) {
 	switch(frame->protocol) {
