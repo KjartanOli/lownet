@@ -58,6 +58,7 @@ void ping_receive(const lownet_frame_t* frame) {
 			reply.source = lownet_get_device_id();
 			reply.destination = frame->source;
 			reply.protocol = frame->protocol;
+			reply.length = sizeof(ping_packet_t);
 			memcpy(&reply.payload, frame->payload, sizeof(ping_packet_t));
 			((ping_packet_t*) &reply.payload)->timestamp_back = lownet_get_time();
 			lownet_send(&reply);
