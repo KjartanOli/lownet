@@ -82,7 +82,7 @@ void app_main(void)
 								serial_write_line(buffer);
 								continue;
 							}
-						char* args = strtok(NULL, " ");
+						char* args = strtok(NULL, "\n");
 						command(args);
 					}
 				else if (msg_in[0] == '@')
