@@ -7,6 +7,7 @@
 
 #include "serial_io.h"
 #include "utility.h"
+#include "commands.h"
 
 #include "app_chat.c"
 #include "app_ping.c"
@@ -16,6 +17,14 @@ const char* ERROR_UNKNOWN = "ERROR // PROCESSING FAILURE";
 
 const char* ERROR_COMMAND = "Command error";
 const char* ERROR_ARGUMENT = "Argument error";
+
+const command_t commands[] = {
+	{"shout", shout_command},
+	{"tell", tell_command},
+	{"ping", ping_command},
+	{"date", date_command},
+	{"id", id_command}
+};
 
 void app_frame_dispatch(const lownet_frame_t* frame) {
 	switch(frame->protocol) {
@@ -29,32 +38,11 @@ void app_frame_dispatch(const lownet_frame_t* frame) {
 	}
 }
 
-void date()
-{
-	lownet_time_t time = lownet_get_time();
-	if (time.seconds == 0 && time.parts == 0)
-		{
-			serial_write_line("Network time is not available.\n");
-			return;
-		}
-
-	// seconds + period + parts + description
-	char buffer[11 + 1 + 3 + 32];
-	sprintf(buffer, "%lu.%u sec since the course started.\n", time.seconds, time.parts);
-	serial_write_line(buffer);
-}
-
-void id()
-{
-	char buffer[5];
-	sprintf(&buffer, "0x%x", lownet_get_device_id());
-	serial_write_line(buffer);
-}
-
 void app_main(void)
 {
 	char msg_in[MSG_BUFFER_LENGTH];
 	char msg_out[MSG_BUFFER_LENGTH];
+
 
 	// Initialize the serial services.
 	init_serial_service();
@@ -62,60 +50,37 @@ void app_main(void)
 	// Initialize the LowNet services.
 	lownet_init(app_frame_dispatch);
 
-	while (true) {
-		memset(msg_in, 0, MSG_BUFFER_LENGTH);
-		memset(msg_out, 0, MSG_BUFFER_LENGTH);
+	while (true)
+		{
+			memset(msg_in, 0, MSG_BUFFER_LENGTH);
+			memset(msg_out, 0, MSG_BUFFER_LENGTH);
 
-		if (!serial_read_line(msg_in)) {
-			// Quick & dirty input parse.
-			if (msg_in[0] == 0) continue;
-			if (msg_in[0] == '/') {
-				char* command = strtok(msg_in + 1, " ");
-				char* argument = strtok(NULL, " ");
-
-				if (!strcmp(command, "ping"))
+			if (!serial_read_line(msg_in)) {
+				// Quick & dirty input parse.
+				if (msg_in[0] == 0) continue;
+				if (msg_in[0] == '/')
 					{
-						if (!argument)
+						char* name = strtok(msg_in + 1, " ");
+						command_fun_t command = find_command(name, commands, (sizeof commands / sizeof(command_t)));
+						if (!command)
 							{
-								serial_write_line("A node id must be provided\n");
+								serial_write_line("Invalid command:");
+								serial_write_line(name);
 								continue;
 							}
-
-						uint8_t dest = (uint8_t) hex_to_dec(argument + 2);
-						if (dest == 0)
-							{
-								serial_write_line("Invalid node id\n");
-								continue;
-							}
-
-						ping(dest);
+						char* args = strtok(NULL, " ");
+						command(args);
 					}
-				else if (!strcmp(command, "date"))
-					date();
-				else if (!strcmp(command, "id"))
-					id();
-			} else if (msg_in[0] == '@') {
-				char* dest = strtok(msg_in + 1, " ");
-				char* message = strtok(NULL, "\n");
-
-				uint8_t d = (uint8_t) hex_to_dec(dest + 2);
-				if (d == 0)
+				else if (msg_in[0] == '@')
 					{
-						serial_write_line("Invalid node id\n");
-						continue;
+						command_fun_t command = find_command("tell", commands, (sizeof commands / sizeof(command_t)));
+						command(msg_in + 1);
 					}
-
-				if (!message)
+				else
 					{
-						serial_write_line("A message must be provided\n");
-						continue;
+						// Default, chat broadcast message.
+						chat_shout(msg_in);
 					}
-
-				chat_tell(message, d);
-			} else {
-				// Default, chat broadcast message.
-				chat_shout(msg_in);
 			}
 		}
-	}
 }
