@@ -50,19 +50,7 @@ size_t chat_valid_message(const char* message)
 }
 
 void chat_shout(const char* message) {
-	if (!(message || chat_valid_message(message)))
-		return;
-
-	size_t length = strlen(message);
-
-	lownet_frame_t frame;
-	frame.source = lownet_get_device_id();
-	frame.destination = 0xFF;
-	frame.protocol = LOWNET_PROTOCOL_CHAT;
-	frame.length = length;
-	memcpy(&frame.payload, message, length);
-	frame.payload[length] = '\0';
-	lownet_send(&frame);
+	chat_tell(message, 0xFF);
 }
 
 void chat_tell(const char* message, uint8_t destination) {
