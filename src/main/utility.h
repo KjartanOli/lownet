@@ -1,4 +1,3 @@
-
 #ifndef GUARD_UTILITY_H
 #define GUARD_UTILITY_H
 
