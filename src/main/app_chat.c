@@ -16,26 +16,17 @@ void chat_receive(const lownet_frame_t* frame) {
 	if (!(frame->destination == lownet_get_device_id()
 				|| frame->destination == 0xFF))
 		return;
-	if (frame->destination == lownet_get_device_id())
-		{
-			// This is a tell message, just for us!
 
-			// id + " says: " + null terminator
-			char buffer[4 + 7 + 1];
-			sprintf(buffer, "0x%x says: ", frame->source);
-			serial_write_line(buffer);
-		}
-	else
-		{
-			// id + " shouts: " + null terminator
-			char buffer[4 + 9 + 1];
-			sprintf(buffer, "0x%x shouts: ", frame->source);
-			serial_write_line(buffer);
-		}
+	char msg[frame->length + 1];
+	memcpy(msg, &frame->payload, frame->length);
+	msg[frame->length] = '\0';
 
-	char buffer[frame->length + 1];
-	memcpy(&buffer, &frame->payload, frame->length);
-	buffer[frame->length] = '\0';
+	// id + max(len("shouts"), len("says")) + message + null
+	char buffer[4 + 9 + frame->length + 1];
+	sprintf(buffer, "0x%x %s: %s",
+					frame->source,
+					(frame->destination == lownet_get_device_id()) ? "says" : "shouts",
+					msg);
 	serial_write_line(buffer);
 }
 
