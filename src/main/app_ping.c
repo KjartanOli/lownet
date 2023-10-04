@@ -52,13 +52,14 @@ void ping_receive(const lownet_frame_t* frame) {
 			sprintf(buffer, "Reply from: 0x%x RTT: %lus %u/256", frame->source, seconds, parts);
 			serial_write_line(buffer);
 		}
-	else {
-		lownet_frame_t reply;
-		reply.source = lownet_get_device_id();
-		reply.destination = frame->source;
-		reply.protocol = frame->protocol;
-		memcpy(&reply.payload, frame->payload, sizeof(ping_packet_t));
-		((ping_packet_t*) &reply.payload)->timestamp_back = lownet_get_time();
-		lownet_send(&reply);
-	}
+	else
+		{
+			lownet_frame_t reply;
+			reply.source = lownet_get_device_id();
+			reply.destination = frame->source;
+			reply.protocol = frame->protocol;
+			memcpy(&reply.payload, frame->payload, sizeof(ping_packet_t));
+			((ping_packet_t*) &reply.payload)->timestamp_back = lownet_get_time();
+			lownet_send(&reply);
+		}
 }
