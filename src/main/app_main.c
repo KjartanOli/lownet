@@ -30,6 +30,7 @@ const command_t commands[] = {
 };
 
 const size_t NUM_COMMANDS = sizeof commands / sizeof(command_t);
+#define FIND_COMMAND(_command) (find_command(_command, commands, NUM_COMMANDS))
 
 void help_command(char*)
 {
@@ -73,7 +74,7 @@ void app_main(void)
 				if (msg_in[0] == '/')
 					{
 						char* name = strtok(msg_in + 1, " ");
-						command_fun_t command = find_command(name, commands, (sizeof commands / sizeof(command_t)));
+						command_fun_t command = FIND_COMMAND(name);
 						if (!command)
 							{
 								serial_write_line("Invalid command:");
@@ -85,13 +86,12 @@ void app_main(void)
 					}
 				else if (msg_in[0] == '@')
 					{
-						command_fun_t command = find_command("tell", commands, (sizeof commands / sizeof(command_t)));
-						command(msg_in + 1);
+						FIND_COMMAND("tell")(msg_in + 1);
 					}
 				else
 					{
 						// Default, chat broadcast message.
-						chat_shout(msg_in);
+						FIND_COMMAND("shout")(msg_in);
 					}
 			}
 		}
