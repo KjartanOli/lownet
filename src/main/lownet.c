@@ -240,6 +240,7 @@ void lownet_service_main(void* pvTaskParam) {
 			// Check whether packet destination is us or broadcast.
 			if (frame.destination != net_system.identity.node
 					&& frame.destination != net_system.broadcast.node
+					&& (mask_id != MASK_UNMASKED && frame.destination != mask_id)
 					&& snoop_level == SNOOP_LEVEL_NONE)  { continue; }
 
 			switch(frame.protocol) {
