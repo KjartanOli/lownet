@@ -77,7 +77,7 @@ void snoop_ping(const lownet_frame_t* frame)
 		n = sprintf(buffer, "0x%x replied to 0x%x", frame->source, frame->destination);
 
 	n += sprintf(buffer + n, "\nTheir time: ");
-	n += format_time(buffer + n, &packet->timestamp_out);
+	n += format_time(buffer + n, (lownet_time_t*) &packet->timestamp_out);
 	n += sprintf(buffer + n, "\nOur time: ");
 	n += format_time(buffer + n, &now);
 	n += sprintf(buffer + n, "\n");
