@@ -20,6 +20,7 @@
 #include "lownet.h"
 #include "snoop.h"
 #include "mask.h"
+#include "network.h"
 
 #define TAG "lownet-core"
 
@@ -230,6 +231,8 @@ void lownet_service_main(void* pvTaskParam) {
 		// Blocking call to receive from inbound queue.  Task will be blocked until
 		// queue has data for us.
 		if (xQueueReceive(net_system.inbound, &frame, UINT32_MAX) == pdTRUE) {
+			network_register_node(frame.source);
+
 			// Check whether the network frame checksum matches computed checksum.
 			if (lownet_crc(&frame) != frame.crc) { continue; }
 
