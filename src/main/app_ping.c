@@ -85,7 +85,9 @@ void ping_receive(const lownet_frame_t* frame) {
 			serial_write_line(buffer);
 
 			lownet_frame_t reply;
-			reply.source = lownet_get_device_id();
+			// make sure we don't unmask ourselves by replying with the id
+			// the packet is addressed to.
+			reply.source = frame->destination;
 			reply.destination = frame->source;
 			reply.protocol = frame->protocol;
 			reply.length = sizeof(ping_packet_t);
