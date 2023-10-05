@@ -15,4 +15,10 @@ uint32_t hex_to_dec(const char* hex_digits);
 // Value: The number of characters written to BUFFER
 int format_time(char* buffer, lownet_time_t* time);
 
+#define ID_WIDTH 4
+// Usage: format_id(BUFFER, ID)
+// Pre:   BUFFER != NULL, sizeof BUFFER >= ID_WIDTH
+// Post:  ID has been formatted into buffer
+// Value: The number of characters written to BUFFER
+int format_id(char* buffer, uint8_t id);
 #endif

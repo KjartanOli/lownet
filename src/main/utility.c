@@ -36,3 +36,8 @@ int format_time(char* buffer, lownet_time_t* time)
 {
 	return sprintf(buffer, "%lus %u/256", time->seconds, time->parts);
 }
+
+int format_id(char* buffer, uint8_t id)
+{
+	return sprintf(buffer, "0x%x", id);
+}
