@@ -47,6 +47,7 @@ void network_command(char*)
 		}
 }
 
+// TODO: See if this mess can't be optimised
 void network_register_node(uint8_t id)
 {
 	lownet_time_t now = lownet_get_time();
