@@ -1,6 +1,7 @@
 // CSTDLIB includes.
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 // LowNet includes.
 #include "lownet.h"
@@ -11,7 +12,8 @@
 #include "snoop.h"
 #include "mask.h"
 
-#include "app_chat.c"
+#include "app_chat.h"
+#include "app_ping.h"
 
 const char* ERROR_OVERRUN = "ERROR // INPUT OVERRUN";
 const char* ERROR_UNKNOWN = "ERROR // PROCESSING FAILURE";
