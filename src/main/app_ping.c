@@ -57,7 +57,7 @@ void ping_receive(const lownet_frame_t* frame) {
 				return;
 		}
 
-	if (((ping_packet_t*) frame->payload)->origin == lownet_get_device_id())
+	if (((ping_packet_t*) frame->payload)->origin == (mask_id ? mask_id : lownet_get_device_id()))
 		{
 			lownet_time_t now = lownet_get_time();
 			ping_packet_t* packet = ((ping_packet_t*) frame->payload);
