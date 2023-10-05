@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "utility.h"
 
@@ -29,4 +30,9 @@ uint32_t hex_to_dec(const char* hex_digits) {
 		acc = (acc << 4) + addend;
 	}
 	return acc;
+}
+
+int format_time(char* buffer, lownet_time_t* time)
+{
+	return sprintf(buffer, "%lus %u/256", time->seconds, time->parts);
 }
