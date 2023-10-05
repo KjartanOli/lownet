@@ -55,7 +55,7 @@ void chat_shout(const char* message) {
 
 void chat_tell(const char* message, uint8_t destination) {
 	size_t length = 0;
-	if (!(message || (length = chat_valid_message(message))))
+	if (!(message && (length = chat_valid_message(message))))
 		return;
 
 	lownet_frame_t frame;
