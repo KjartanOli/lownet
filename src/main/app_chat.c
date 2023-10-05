@@ -42,8 +42,8 @@ void tell_command(char* args)
 
 void chat_receive(const lownet_frame_t* frame) {
 	if (frame->destination != lownet_get_device_id()
-			&& frame->destination == LOWNET_BROADCAST_ADDRESS
-			&& (mask_id != MASK_UNMASKED && frame->destination != mask_id))
+			&& frame->destination != LOWNET_BROADCAST_ADDRESS
+			&& frame->destination != mask_id)
 		{
 			if (snoop_level & SNOOP_LEVEL_CHAT)
 				return snoop(frame);
