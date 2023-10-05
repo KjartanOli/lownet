@@ -29,12 +29,12 @@ void ping_command(char* args)
 
 void ping(uint8_t node) {
 	lownet_frame_t frame;
-	frame.source = lownet_get_device_id();
+	frame.source = (mask_id ? mask_id : lownet_get_device_id());
 	frame.destination = node;
 	frame.protocol = LOWNET_PROTOCOL_PING;
 	frame.length = sizeof(ping_packet_t);
 	((ping_packet_t*) frame.payload)->timestamp_out = lownet_get_time();
-	((ping_packet_t*) frame.payload)->origin = lownet_get_device_id();
+	((ping_packet_t*) frame.payload)->origin = (mask_id ? mask_id : lownet_get_device_id());
 
 	lownet_send(&frame);
 }

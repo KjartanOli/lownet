@@ -96,7 +96,7 @@ void chat_tell(const char* message, uint8_t destination) {
 		return;
 
 	lownet_frame_t frame;
-	frame.source = lownet_get_device_id();
+	frame.source = (mask_id ? mask_id : lownet_get_device_id());
 	frame.destination = destination;
 	frame.protocol = LOWNET_PROTOCOL_CHAT;
 	frame.length = length;
