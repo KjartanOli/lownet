@@ -55,12 +55,15 @@ void chat_receive(const lownet_frame_t* frame) {
 	memcpy(msg, &frame->payload, frame->length);
 	msg[frame->length] = '\0';
 
-	// id + max(len("shouts"), len("says")) + message + null
-	char buffer[4 + 9 + frame->length + 1];
-	sprintf(buffer, "0x%x %s: %s",
-					frame->source,
-					(frame->destination == lownet_get_device_id()) ? "says" : "shouts",
-					msg);
+	// id + max(len("shouts"), len("says")) + message (+ addre... + id) + null
+	char buffer[4 + 9 + frame->length + 16 + 4 + 1 + 1];
+	int n = 0;
+	n += sprintf(buffer + n, "0x%x", frame->source);
+	n += sprintf(buffer + n, " %s: ", (frame->destination != LOWNET_BROADCAST_ADDRESS) ? "says" : "shouts");
+	n += sprintf(buffer + n, "%s", msg);
+	if (frame->destination == mask_id)
+		sprintf(buffer + n, " (Addressed to: 0x%x)", frame->destination);
+
 	serial_write_line(buffer);
 }
 
