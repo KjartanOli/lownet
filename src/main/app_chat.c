@@ -9,13 +9,19 @@
 #include "lownet.h"
 #include "serial_io.h"
 #include "utility.h"
+#include "snoop.h"
 
 #include "app_chat.h"
 
 void chat_receive(const lownet_frame_t* frame) {
 	if (!(frame->destination == lownet_get_device_id()
 				|| frame->destination == 0xFF))
-		return;
+		{
+			if (snoop_level & SNOOP_LEVEL_CHAT)
+				return snoop(frame);
+			else
+				return;
+		}
 
 	char msg[frame->length + 1];
 	memcpy(msg, &frame->payload, frame->length);

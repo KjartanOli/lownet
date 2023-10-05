@@ -19,6 +19,7 @@
 #include <string.h>
 
 #include "lownet.h"
+#include "snoop.h"
 
 #define TAG "lownet-core"
 
@@ -237,7 +238,9 @@ void lownet_service_main(void* pvTaskParam) {
 			if (frame.source == 0xFF) { continue; }
 
 			// Check whether packet destination is us or broadcast.
-			if (frame.destination != net_system.identity.node && frame.destination != net_system.broadcast.node)  { continue; }
+			if (frame.destination != net_system.identity.node
+					&& frame.destination != net_system.broadcast.node
+					&& snoop_level == SNOOP_LEVEL_NONE)  { continue; }
 
 			switch(frame.protocol) {
 				case LOWNET_PROTOCOL_RESERVE:

@@ -5,6 +5,7 @@
 
 #include "utility.h"
 #include "serial_io.h"
+#include "snoop.h"
 
 #include "app_ping.h"
 #include "app_chat.h"

@@ -5,14 +5,7 @@
 #include "app_ping.h"
 
 #include "serial_io.h"
-
-typedef struct __attribute__((__packed__))
-{
-	lownet_time_t timestamp_out;
-	lownet_time_t timestamp_back;
-	uint8_t origin;
-} ping_packet_t;
-
+#include "snoop.h"
 
 void ping(uint8_t node) {
 	lownet_frame_t frame;
@@ -35,8 +28,13 @@ void ping_receive(const lownet_frame_t* frame) {
 
 	if (frame->destination != lownet_get_device_id()
 			&& frame->destination != 0xFF)
-		// Not intended for us
-		return;
+		{
+			if (snoop_level & SNOOP_LEVEL_PING)
+				snoop(frame);
+			else
+				// Not intended for us
+				return;
+		}
 
 	if (((ping_packet_t*) frame->payload)->origin == lownet_get_device_id())
 		{

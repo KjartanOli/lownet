@@ -8,6 +8,7 @@
 #include "serial_io.h"
 #include "utility.h"
 #include "commands.h"
+#include "snoop.h"
 
 #include "app_chat.c"
 #include "app_ping.c"
@@ -21,12 +22,13 @@ const char* ERROR_ARGUMENT = "Argument error";
 void help_command(char*);
 
 const command_t commands[] = {
-	{"shout", "/shout MSG               Broadcast a message.", shout_command},
-	{"tell",  "/tell ID MSG or @ID MSG  Send a message to a specific node", tell_command},
-	{"ping",  "/ping ID                 Check if a node is online", ping_command},
-	{"date",  "/date                    Print the current time", date_command},
-	{"id",    "/id                      Print your ID", id_command},
-	{"help",  "/help                    Print this help", help_command}
+	{"shout", "/shout MSG                   Broadcast a message.", shout_command},
+	{"tell",  "/tell ID MSG or @ID MSG      Send a message to a specific node", tell_command},
+	{"ping",  "/ping ID                     Check if a node is online", ping_command},
+	{"date",  "/date                        Print the current time", date_command},
+	{"id",    "/id                          Print your ID", id_command},
+	{"snoop", "/snoop [none|ping|chat|all]  Set the level of snooping on other's communications", snoop_command},
+	{"help",  "/help                        Print this help", help_command}
 };
 
 const size_t NUM_COMMANDS = sizeof commands / sizeof(command_t);
@@ -38,6 +40,8 @@ void help_command(char*)
 		serial_write_line(commands[i].description);
 	serial_write_line("Any input not preceded by a '/' or '@' will be treated as a broadcast message.");
 }
+
+uint8_t snoop_level = SNOOP_LEVEL_NONE;
 
 void app_frame_dispatch(const lownet_frame_t* frame) {
 	switch(frame->protocol) {
