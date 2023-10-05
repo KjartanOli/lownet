@@ -18,12 +18,6 @@ command_fun_t find_command(const char* command, const command_t* commands, size_
 	return NULL;
 }
 
-// DEFINITION: A node id is a string of the form 0xXX where XX is a
-// valid hexadecimal number.
-
-// Usage: id_command(NULL)
-// Pre:   None, this command takes no arguments.
-// Post:  The id of the node has been written to the serial port.
 void id_command(char*)
 {
 	// id + null
@@ -32,9 +26,6 @@ void id_command(char*)
 	serial_write_line(buffer);
 }
 
-// Usage: ping_command(ID)
-// Pre:   ID is a valid node id.
-// Post:  A ping has been sent to the node identified by ID.
 void ping_command(char* args)
 {
 	if (!args)
@@ -53,19 +44,11 @@ void ping_command(char* args)
 	ping(dest);
 }
 
-// Usage: shout_command(MSG)
-// Pre:   MSG != NULL
-// Post:  MSG as been broadcast over the network.
 void shout_command(char* args)
 {
 	chat_shout(args);
 }
 
-// Usage: tell_command(ARGS)
-// Pre:   ARGS is a string of the form 'ID MSG'
-//        where ID is a node id number and MSG is a non
-//        empty string.  ID and MSG must be separated by a single space.
-// Post:  MSG has been sent to the node identified by ID.
 void tell_command(char* args)
 {
 	char* dest = strtok(args, " ");
@@ -87,9 +70,6 @@ void tell_command(char* args)
 	chat_tell(message, d);
 }
 
-// Usage: date_command(NULL)
-// Pre:   None, this command takes no arguments.
-// Post:  The network time has been written to the serial port.
 void date_command(char*)
 {
 	lownet_time_t time = lownet_get_time();
