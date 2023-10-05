@@ -37,18 +37,6 @@ void id_command(char* args);
 // Post:  A ping has been sent to the node identified by ID.
 void ping_command(char* args);
 
-// Usage: shout_command(MSG)
-// Pre:   MSG != NULL
-// Post:  MSG as been broadcast over the network.
-void shout_command(char* args);
-
-// Usage: tell_command(ARGS)
-// Pre:   ARGS is a string of the form 'ID MSG'
-//        where ID is a node id number and MSG is a non
-//        empty string.  ID and MSG must be separated by a single space.
-// Post:  MSG has been sent to the node identified by ID.
-void tell_command(char* args);
-
 // Usage: date_command(NULL)
 // Pre:   None, this command takes no arguments.
 // Post:  The network time has been written to the serial port.

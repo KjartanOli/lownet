@@ -13,6 +13,32 @@
 
 #include "app_chat.h"
 
+void shout_command(char* args)
+{
+	chat_shout(args);
+}
+
+void tell_command(char* args)
+{
+	char* dest = strtok(args, " ");
+	char* message = strtok(NULL, "\n");
+
+	uint8_t d = (uint8_t) hex_to_dec(dest + 2);
+	if (d == 0)
+		{
+			serial_write_line("Invalid node id\n");
+			return;
+		}
+
+	if (!message)
+		{
+			serial_write_line("A message must be provided\n");
+			return;
+		}
+
+	chat_tell(message, d);
+}
+
 void chat_receive(const lownet_frame_t* frame) {
 	if (!(frame->destination == lownet_get_device_id()
 				|| frame->destination == 0xFF))
