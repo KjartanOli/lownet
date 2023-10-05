@@ -52,6 +52,11 @@ void ping_receive(const lownet_frame_t* frame) {
 		}
 	else
 		{
+			// Ping... + id + null
+			char buffer[11 + 4 + 1];
+			sprintf(buffer, "Ping from: 0x%x", frame->source);
+			serial_write_line(buffer);
+
 			lownet_frame_t reply;
 			reply.source = lownet_get_device_id();
 			reply.destination = frame->source;
