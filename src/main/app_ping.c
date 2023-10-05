@@ -5,7 +5,26 @@
 #include "app_ping.h"
 
 #include "serial_io.h"
+#include "utility.h"
 #include "snoop.h"
+
+void ping_command(char* args)
+{
+	if (!args)
+		{
+			serial_write_line("A node id must be provided\n");
+			return;
+		}
+
+	uint8_t dest = (uint8_t) hex_to_dec(args + 2);
+	if (dest == 0)
+		{
+			serial_write_line("Invalid node id\n");
+			return;
+		}
+
+	ping(dest);
+}
 
 void ping(uint8_t node) {
 	lownet_frame_t frame;

@@ -32,11 +32,6 @@ command_fun_t find_command (const char* command, const command_t* commands, size
 // Post:  The id of the node has been written to the serial port.
 void id_command(char* args);
 
-// Usage: ping_command(ID)
-// Pre:   ID is a valid node id.
-// Post:  A ping has been sent to the node identified by ID.
-void ping_command(char* args);
-
 // Usage: date_command(NULL)
 // Pre:   None, this command takes no arguments.
 // Post:  The network time has been written to the serial port.
