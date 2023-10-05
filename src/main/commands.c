@@ -25,15 +25,19 @@ void id_command(char*)
 	if (mask_id == MASK_UNMASKED)
 		{
 			// id + null
-			char buffer[4 + 1];
-			sprintf(buffer, "0x%x", lownet_get_device_id());
+			char buffer[ID_WIDTH + 1];
+			format_id(buffer, lownet_get_device_id());
 			serial_write_line(buffer);
 		}
 	else
 		{
 			// id + (mask... + id + ) + null
-			char buffer[4 + 12 + 4 + 1 + 1];
-			sprintf(buffer, "0x%x (Masked as 0x%x)", lownet_get_device_id(), mask_id);
+			char buffer[ID_WIDTH + 12 + ID_WIDTH + 1 + 1];
+			int n = 0;
+			n += format_id(buffer + n, lownet_get_device_id());
+			n += sprintf(buffer + n, " (Masked as ");
+			n += format_id(buffer + n, mask_id);
+			n += sprintf(buffer + n, ")");
 			serial_write_line(buffer);
 		}
 }

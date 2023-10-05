@@ -58,11 +58,15 @@ void chat_receive(const lownet_frame_t* frame) {
 	// id + max(len("shouts"), len("says")) + message (+ addre... + id) + null
 	char buffer[4 + 9 + frame->length + 16 + 4 + 1 + 1];
 	int n = 0;
-	n += sprintf(buffer + n, "0x%x", frame->source);
+	n += format_id(buffer + n, frame->source);
 	n += sprintf(buffer + n, " %s: ", (frame->destination != LOWNET_BROADCAST_ADDRESS) ? "says" : "shouts");
 	n += sprintf(buffer + n, "%s", msg);
 	if (frame->destination == mask_id)
-		sprintf(buffer + n, " (Addressed to: 0x%x)", frame->destination);
+		{
+			n += sprintf(buffer + n, " (Addressed to: ");
+			n += format_id(buffer + n, frame->destination);
+			n += sprintf(buffer + n, ")");
+		}
 
 	serial_write_line(buffer);
 }
