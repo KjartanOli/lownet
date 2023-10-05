@@ -19,6 +19,7 @@
 
 #include "lownet.h"
 #include "snoop.h"
+#include "mask.h"
 
 #define TAG "lownet-core"
 
@@ -129,7 +130,7 @@ void lownet_send(const lownet_frame_t* frame) {
 	lownet_frame_t out_frame;
 	memset(&out_frame, 0, sizeof(out_frame));
 
-	out_frame.source = net_system.identity.node;	// Overwrite frame source with device ID.
+	out_frame.source = (mask_id ? mask_id : net_system.identity.node);
 	out_frame.destination = frame->destination;
 	out_frame.protocol = frame->protocol;
 	out_frame.length = frame->length;

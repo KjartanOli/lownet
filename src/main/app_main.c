@@ -9,6 +9,7 @@
 #include "utility.h"
 #include "commands.h"
 #include "snoop.h"
+#include "mask.h"
 
 #include "app_chat.c"
 
@@ -21,13 +22,15 @@ const char* ERROR_ARGUMENT = "Argument error";
 void help_command(char*);
 
 const command_t commands[] = {
-	{"shout", "/shout MSG                   Broadcast a message.", shout_command},
-	{"tell",  "/tell ID MSG or @ID MSG      Send a message to a specific node", tell_command},
-	{"ping",  "/ping ID                     Check if a node is online", ping_command},
-	{"date",  "/date                        Print the current time", date_command},
-	{"id",    "/id                          Print your ID", id_command},
-	{"snoop", "/snoop [none|ping|chat|all]  Set the level of snooping on other's communications", snoop_command},
-	{"help",  "/help                        Print this help", help_command}
+	{"shout",  "/shout MSG                   Broadcast a message.", shout_command},
+	{"tell",   "/tell ID MSG or @ID MSG      Send a message to a specific node", tell_command},
+	{"ping",   "/ping ID                     Check if a node is online", ping_command},
+	{"date",   "/date                        Print the current time", date_command},
+	{"id",     "/id                          Print your ID", id_command},
+	{"snoop",  "/snoop [none|ping|chat|all]  Set the level of snooping on other's communications", snoop_command},
+	{"mask",   "/mask ID                     Pretend to be node ID", mask_command},
+	{"unmask", "/unmask                      Stop id masking", unmask_command},
+	{"help",   "/help                        Print this help", help_command}
 };
 
 const size_t NUM_COMMANDS = sizeof commands / sizeof(command_t);
@@ -41,6 +44,8 @@ void help_command(char*)
 }
 
 uint8_t snoop_level = SNOOP_LEVEL_NONE;
+uint8_t mask_id = MASK_UNMASKED;
+
 
 void app_frame_dispatch(const lownet_frame_t* frame) {
 	switch(frame->protocol) {

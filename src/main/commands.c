@@ -6,6 +6,7 @@
 #include "utility.h"
 #include "serial_io.h"
 #include "snoop.h"
+#include "mask.h"
 
 #include "app_ping.h"
 #include "app_chat.h"
@@ -21,10 +22,20 @@ command_fun_t find_command(const char* command, const command_t* commands, size_
 
 void id_command(char*)
 {
-	// id + null
-	char buffer[5];
-	sprintf(buffer, "0x%x", lownet_get_device_id());
-	serial_write_line(buffer);
+	if (mask_id == MASK_UNMASKED)
+		{
+			// id + null
+			char buffer[4 + 1];
+			sprintf(buffer, "0x%x", lownet_get_device_id());
+			serial_write_line(buffer);
+		}
+	else
+		{
+			// id + (mask... + id + ) + null
+			char buffer[4 + 12 + 4 + 1 + 1];
+			sprintf(buffer, "0x%x (Masked as 0x%x)", lownet_get_device_id(), mask_id);
+			serial_write_line(buffer);
+		}
 }
 
 void date_command(char*)
