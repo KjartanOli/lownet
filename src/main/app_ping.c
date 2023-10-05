@@ -59,21 +59,27 @@ void ping_receive(const lownet_frame_t* frame) {
 		{
 			lownet_time_t now = lownet_get_time();
 			ping_packet_t* packet = ((ping_packet_t*) frame->payload);
-			uint32_t rtt = (now.seconds * LOWNET_TIME_RESOLUTION + now.parts) - (packet->timestamp_out.seconds * LOWNET_TIME_RESOLUTION + packet->timestamp_out.parts);
+			uint32_t t = (now.seconds * LOWNET_TIME_RESOLUTION + now.parts) - (packet->timestamp_out.seconds * LOWNET_TIME_RESOLUTION + packet->timestamp_out.parts);
 
-			uint32_t seconds = rtt / LOWNET_TIME_RESOLUTION;
-			uint8_t parts = rtt % LOWNET_TIME_RESOLUTION;
+			lownet_time_t rtt;
+			rtt.seconds = t / LOWNET_TIME_RESOLUTION;
+			rtt.parts = t % LOWNET_TIME_RESOLUTION;
 
-			// reply from + id + rtt: + seconds + unit + part + suffix + null
-			char buffer[12 + 4 + 5 + 11 + 2 + 3 + 4 + 1];
-			sprintf(buffer, "Reply from: 0x%x RTT: %lus %u/256", frame->source, seconds, parts);
+			// reply from + id + rtt: + time + null
+			char buffer[12 + 4 + 5 + TIME_WIDTH + 1];
+			int n = 0;
+			n += sprintf(buffer + n, "Reply from: 0x%x RTT: ", frame->source);
+			n += format_time(buffer + n, &rtt);
 			serial_write_line(buffer);
 		}
 	else
 		{
-			// Ping... + id + null
-			char buffer[11 + 4 + 1];
-			sprintf(buffer, "Ping from: 0x%x", frame->source);
+			// Ping... + id (+ addre... + id) + null
+			char buffer[11 + 4 + 16 + 4 + 1 + 1];
+			int n = 0;
+			n += sprintf(buffer, "Ping from: 0x%x", frame->source);
+			if (frame->destination == mask_id)
+				sprintf(buffer + n, " (Addressed to: 0x%x)", frame->destination);
 			serial_write_line(buffer);
 
 			lownet_frame_t reply;

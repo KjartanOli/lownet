@@ -5,6 +5,7 @@
 
 #include "serial_io.h"
 #include "app_ping.h"
+#include "utility.h"
 
 void snoop_command(char* args)
 {
@@ -66,18 +67,20 @@ void snoop_ping(const lownet_frame_t* frame)
 	ping_packet_t* packet = (ping_packet_t*) frame->payload;
 	lownet_time_t now = lownet_get_time();
 
-	// id + action + id + newline + the... + seconds + unit + parts
-	// + suffix + newline + our... + seconds + unit + parts + suffix + newline + null
-	char buffer[4 + 11 + 4 + 1 + 12 + 11 + 2 + 3 + 4 + 1 + 10 + 11 + 2 + 3 + 4 + 1 + 1];
+	// id + action + id + newline + the... + time + newline + our... +
+	// time + newline + null
+	char buffer[4 + 11 + 4 + 1 + 12 + TIME_WIDTH + 1 + 10 + TIME_WIDTH + 1 + 1];
 	int n;
 	if (packet->origin != frame->destination)
 		n = sprintf(buffer, "0x%x pinged 0x%x", frame->source, frame->destination);
 	else
 		n = sprintf(buffer, "0x%x replied to 0x%x", frame->source, frame->destination);
 
-	sprintf(buffer + n, "\nTheir time: %lus %u/256\nOur time: %lus %u/256\n",
-					packet->timestamp_out.seconds, packet->timestamp_out.parts,
-					now.seconds, now.parts);
+	n += sprintf(buffer + n, "\nTheir time: ");
+	n += format_time(buffer + n, &packet->timestamp_out);
+	n += sprintf(buffer + n, "\nOur time: ");
+	n += format_time(buffer + n, &now);
+	n += sprintf(buffer + n, "\n");
 
 	serial_write_line(buffer);
 }

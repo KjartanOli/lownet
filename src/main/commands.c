@@ -48,7 +48,8 @@ void date_command(char*)
 		}
 
 	// seconds + unit + part + description + null
-	char buffer[11 + 2 + 3 + 24 + 0];
-	sprintf(buffer, "%lus %u/256 since the course started", time.seconds, time.parts);
+	char buffer[TIME_WIDTH + 1];
+	int n = format_time(buffer, &time);
+	sprintf(buffer + n, " since the course started");
 	serial_write_line(buffer);
 }
