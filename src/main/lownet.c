@@ -192,7 +192,7 @@ void lownet_service_main(void* pvTaskParam) {
 	esp_read_mac(local_mac, ESP_MAC_WIFI_STA);
 
 	net_system.identity = lownet_lookup_mac(local_mac);
-	net_system.broadcast = lownet_lookup(0xFF);
+	net_system.broadcast = lownet_lookup(LOWNET_BROADCAST_ADDRESS);
 
 	if (!net_system.identity.node || !net_system.broadcast.node) {
 		ESP_EARLY_LOGE(TAG, "Failed to identify device / broadcast identity");
@@ -235,7 +235,7 @@ void lownet_service_main(void* pvTaskParam) {
 
 			// Not strictly to spec but a useful safety valve; if frame has, as a source
 			// address, the broadcast address, discard it -- something has gone wrong.
-			if (frame.source == 0xFF) { continue; }
+			if (frame.source == LOWNET_BROADCAST_ADDRESS) { continue; }
 
 			// Check whether packet destination is us or broadcast.
 			if (frame.destination != net_system.identity.node

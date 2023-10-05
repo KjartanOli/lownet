@@ -41,7 +41,7 @@ void tell_command(char* args)
 
 void chat_receive(const lownet_frame_t* frame) {
 	if (!(frame->destination == lownet_get_device_id()
-				|| frame->destination == 0xFF))
+				|| frame->destination == LOWNET_BROADCAST_ADDRESS))
 		{
 			if (snoop_level & SNOOP_LEVEL_CHAT)
 				return snoop(frame);
@@ -82,7 +82,7 @@ size_t chat_valid_message(const char* message)
 }
 
 void chat_shout(const char* message) {
-	chat_tell(message, 0xFF);
+	chat_tell(message, LOWNET_BROADCAST_ADDRESS);
 }
 
 void chat_tell(const char* message, uint8_t destination) {
