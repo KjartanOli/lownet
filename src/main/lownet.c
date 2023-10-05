@@ -1,4 +1,3 @@
-
 #define INCLUDE_vTaskDelete 1
 
 #include <freertos/FreeRTOS.h>
@@ -23,8 +22,8 @@
 
 #define TAG "lownet-core"
 
-#define EVENT_CORE_READY	0x01
-#define EVENT_CORE_ERROR	0x02
+#define EVENT_CORE_READY 0x01
+#define EVENT_CORE_ERROR 0x02
 
 #define TIMEOUT_STARTUP ((TickType_t)(5000 / portTICK_PERIOD_MS))
 
@@ -124,7 +123,7 @@ void lownet_init(lownet_recv_fn receive_cb) {
 
 void lownet_send(const lownet_frame_t* frame) {
 	// Discard packet instead of sending if specified payload length
-	//	is impossible.
+	// is impossible.
 	if (frame->length > LOWNET_PAYLOAD_SIZE) { return; }
 
 	lownet_frame_t out_frame;
