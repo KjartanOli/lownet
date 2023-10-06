@@ -77,6 +77,11 @@ void chat_receive(const lownet_frame_t* frame) {
 size_t chat_valid_message(const char* message)
 {
 	size_t i = 0;
+	/*
+		Loop Invariant:
+		0 <= i <= strlen(message)
+		forall x | 0 <= x < i : util_printable(message[x])
+	 */
 	for (; message[i]; i++)
 		{
 			if (!util_printable(message[i]))

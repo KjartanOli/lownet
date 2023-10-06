@@ -40,8 +40,16 @@ const command_t commands[] = {
 const size_t NUM_COMMANDS = sizeof commands / sizeof(command_t);
 #define FIND_COMMAND(_command) (find_command(_command, commands, NUM_COMMANDS))
 
+// Usage: help_command(NULL)
+// Pre:   None, this command takes no arguments.
+// Post:  A list of available commands has been written to the serial port.
 void help_command(char*)
 {
+	/*
+		Loop Invariant:
+		0 <= i < NUM_COMMANDS
+		forall x | 0 <= x < i : commands[x] has been written to the serial port
+	 */
 	for (size_t i = 0; i < NUM_COMMANDS; ++i)
 		serial_write_line(commands[i].description);
 	serial_write_line("Any input not preceded by a '/' or '@' will be treated as a broadcast message.");
