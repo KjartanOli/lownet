@@ -5,6 +5,8 @@
 #include "serial_io.h"
 #include "utility.h"
 
+uint8_t mask_id = MASK_UNMASKED;
+
 void mask_command(char* args)
 {
 	mask_id = (uint8_t) hex_to_dec(args + 2);

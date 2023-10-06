@@ -55,10 +55,6 @@ void help_command(char*)
 	serial_write_line("Any input not preceded by a '/' or '@' will be treated as a broadcast message.");
 }
 
-uint8_t snoop_level = SNOOP_LEVEL_NONE;
-uint8_t mask_id = MASK_UNMASKED;
-
-
 void app_frame_dispatch(const lownet_frame_t* frame) {
 	switch(frame->protocol) {
 		case LOWNET_PROTOCOL_CHAT:

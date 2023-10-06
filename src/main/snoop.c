@@ -7,6 +7,8 @@
 #include "app_ping.h"
 #include "utility.h"
 
+uint8_t snoop_level = SNOOP_LEVEL_NONE;
+
 void snoop_command(char* args)
 {
 	if (!args)
