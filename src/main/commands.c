@@ -8,9 +8,6 @@
 #include "snoop.h"
 #include "mask.h"
 
-#include "app_ping.h"
-#include "app_chat.h"
-
 command_fun_t find_command(const char* command, const command_t* commands, size_t n)
 {
 	/*
