@@ -13,7 +13,8 @@ void mask_command(char* args)
 
 	// Now cla... + id + null
 	char buffer[20 + 4 + 1];
-	sprintf(buffer, "Now claiming to be: 0x%x", mask_id);
+	int n = sprintf(buffer, "Now claiming to be: ");
+	format_id(buffer + n, mask_id);
 	serial_write_line(buffer);
 }
 
