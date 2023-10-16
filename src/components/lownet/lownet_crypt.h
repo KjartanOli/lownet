@@ -6,7 +6,7 @@
 #include "lownet.h"
 
 // Structure for convenience, allows for a nice inline literal definition
-//	for AES keys.
+// for AES keys.
 typedef struct {
 	uint32_t words[LOWNET_KEY_SIZE_AES / 4];
 } lownet_input_key_t;
