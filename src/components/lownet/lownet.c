@@ -29,12 +29,19 @@
 
 #define TIMEOUT_STARTUP ((TickType_t)(5000 / portTICK_PERIOD_MS))
 
+static uint8_t	aes_key_bytes[LOWNET_KEY_SIZE_AES];
+
 struct {
 	TaskHandle_t service;
 
 	EventGroupHandle_t events;
 	QueueHandle_t inbound;
 	lownet_recv_fn dispatch;
+
+	lownet_cipher_fn encrypt;
+	lownet_cipher_fn decrypt;
+	lownet_key_t aes_key;
+	const char* signing_key;
 
 	lownet_identifier_t identity;
 	lownet_identifier_t broadcast;
@@ -51,16 +58,15 @@ void lownet_service_main(void* pvTaskParam);
 void lownet_service_kill();
 void lownet_inbound_handler(const esp_now_recv_info_t * info, const uint8_t* data, int len);
 
-void lownet_sync_time(const lownet_frame_t* time_frame);
 
-
-void lownet_init(lownet_recv_fn receive_cb) {
+void lownet_init(lownet_recv_fn receive_cb, lownet_cipher_fn encrypt_fn, lownet_cipher_fn decrypt_fn) {
 	if (net_initialized) {
 		ESP_LOGE(TAG, "LowNet already initialized");
 		return;
 	} else {
 		net_initialized = 1;
 		memset(&net_system, 0, sizeof(net_system));
+		net_system.aes_key.bytes = (uint8_t*)&aes_key_bytes;
 	}
 
 	ESP_ERROR_CHECK(nvs_flash_init());        // initialize NVS
@@ -78,12 +84,24 @@ void lownet_init(lownet_recv_fn receive_cb) {
 	}
 
 	net_system.dispatch = receive_cb;
+	net_system.encrypt = encrypt_fn;
+	net_system.decrypt = decrypt_fn;
 
 	net_system.events = xEventGroupCreate();
 	if (!net_system.events) {
 		ESP_LOGE(TAG, "Error creating lownet event group");
 		return;
 	}
+
+	// Initialize the keystore.
+	lownet_keystore_init();
+
+	// Pre-fill the keystore with the well-known keys.
+	lownet_keystore_write(0, &base_shared_key);
+	lownet_keystore_write(1, &alt_shared_key);
+
+	// Apply the signing key.
+	net_system.signing_key = lownet_public_key;
 
 	// Create the primary network service task.
 	xTaskCreatePinnedToCore(
@@ -108,12 +126,14 @@ void lownet_init(lownet_recv_fn receive_cb) {
 	if (startup_result & EVENT_CORE_ERROR) {
 		ESP_LOGE(TAG, "Error starting network service..");
 		vEventGroupDelete(net_system.events);
+		lownet_keystore_free();
 		net_initialized = 0;
 		return;
 	}
 	else if (!(startup_result & EVENT_CORE_READY)) {
 		ESP_LOGE(TAG, "Timed out waiting for network service startup...");
 		vEventGroupDelete(net_system.events);
+		lownet_keystore_free();
 		net_initialized = 0;
 		return;
 	}
@@ -122,7 +142,40 @@ void lownet_init(lownet_recv_fn receive_cb) {
 }
 
 
+// Delegation method for encrypting and sending a lownet frame.  Presume only
+//	lownet internal usage, so relaxed precondition check.
+void lownet_encrypt_send(const lownet_frame_t* frame) {
+	lownet_secure_frame_t plain;
+	lownet_secure_frame_t cipher;
 
+	// Little sanity check; IVT and padding size must be multiples of 4 in current
+	// implementation.
+	#if LOWNET_IVT_SIZE % 4 != 0 || LOWNET_CRYPTPAD_SIZE % 4 != 0
+	#error "IVT / Padding size violation"
+	#endif
+
+	// Generate the initialization vector and padding entropy.
+	for (int i = 0; i < LOWNET_IVT_SIZE / 4; ++i) {
+		((uint32_t*)plain.ivt)[i] = esp_random();
+	}
+	for (int i = 0; i < LOWNET_CRYPTPAD_SIZE / 4; ++i) {
+		((uint32_t*)plain.padding)[i] = esp_random();
+	}
+
+	// Clone the plaintext frame into the plaintext secure frame.
+	memcpy(&plain.frame, frame, sizeof(lownet_frame_t));
+
+	// Encrypt with user-defined enc function.
+	net_system.encrypt(&plain, &cipher);
+
+	if (esp_now_send(net_system.broadcast.mac, (const uint8_t*)&cipher, sizeof(cipher)) != ESP_OK) {
+		ESP_LOGE(TAG, "LowNet Frame send error");
+	}
+}
+
+
+// Public interface; standard send.  Delegate to encrypt-and-send method if AES encryption
+// key is defined.
 void lownet_send(const lownet_frame_t* frame) {
 	// Discard packet instead of sending if specified payload length
 	// is impossible.
@@ -145,8 +198,14 @@ void lownet_send(const lownet_frame_t* frame) {
 	// Generate and apply the lownet CRC to the frame.
 	out_frame.crc = lownet_crc(&out_frame);
 
-	if (esp_now_send(net_system.broadcast.mac, (const uint8_t*)&out_frame, sizeof(out_frame)) != ESP_OK) {
-		ESP_LOGE(TAG, "LowNet Frame send error");
+	if (lownet_get_key() != NULL) {
+		// We have an AES key -- use it to encrypt the frame.
+		lownet_encrypt_send(&out_frame);
+	} else {
+		// No key is active -- send the frame as-is, plaintext.
+		if (esp_now_send(net_system.broadcast.mac, (const uint8_t*)&out_frame, sizeof(out_frame)) != ESP_OK) {
+			ESP_LOGE(TAG, "LowNet Frame send error");
+		}
 	}
 }
 
@@ -169,9 +228,58 @@ lownet_time_t lownet_get_time() {
 	return result;
 }
 
+
+// Sets the network time based on a given network time.
+void lownet_set_time(const lownet_time_t* time) {
+	// Overwrite the network time with the received time.  Take the processor timestamp at
+	// this moment.
+	memcpy(&net_system.sync_time, time, sizeof(lownet_time_t));
+	net_system.sync_stamp = (esp_timer_get_time() / 1000);
+}
+
+
 // Returns the ID of this device.
 uint8_t lownet_get_device_id() {
 	return net_system.identity.node;
+}
+
+
+// Returns the currently active AES key, or NULL if no key is in use.
+const lownet_key_t* lownet_get_key() {
+	if (net_system.aes_key.size == 0) {
+		return NULL;
+	}
+	return &net_system.aes_key;
+}
+
+
+// Sets the AES key.  Pass in NULL to disable encryption.  If an actual key is
+// provided, the size must match the expected key size.
+void lownet_set_key(const lownet_key_t* key) {
+	if (key == NULL) {
+		// Disable AES.
+		net_system.aes_key.size = 0;
+		return;
+	}
+	if (key->size != LOWNET_KEY_SIZE_AES) {
+		ESP_LOGE(TAG, "Invalid AES key size");
+		return;
+	}
+	net_system.aes_key.size = LOWNET_KEY_SIZE_AES;
+	memcpy(net_system.aes_key.bytes, key->bytes, net_system.aes_key.size);
+}
+
+
+// Sets the AES key from an existing stored key.
+void lownet_set_stored_key(uint8_t key_id) {
+	lownet_key_t stored_key = lownet_keystore_read(key_id);
+	lownet_set_key(&stored_key);
+}
+
+
+// Return the signing (public) RSA key PEM.
+const char* lownet_get_signing_key() {
+	return net_system.signing_key;
 }
 
 
@@ -246,16 +354,13 @@ void lownet_service_main(void* pvTaskParam) {
 					&& (mask_id != MASK_UNMASKED && frame.destination != mask_id)
 					&& snoop_level == SNOOP_LEVEL_NONE)  { continue; }
 
-			switch(frame.protocol) {
+			// Mask the signing bits before switching on protocol.
+			switch(frame.protocol & 0b00111111) {
 				case LOWNET_PROTOCOL_RESERVE:
 					// Reserved -- discard.
 					break;
 
-				case LOWNET_PROTOCOL_TIME:
-					// TIME packet is a special case; handled entirely within lownet layer.
-					lownet_sync_time(&frame);
-					break;
-
+				case LOWNET_PROTOCOL_COMMAND:
 				case LOWNET_PROTOCOL_CHAT:
 				case LOWNET_PROTOCOL_PING:
 					net_system.dispatch(&frame);
@@ -277,31 +382,30 @@ void lownet_service_kill() {
 		vQueueDelete(net_system.inbound);
 	}
 	vTaskDelete(net_system.service);
-	return; // Should never execute, when this function is called from lownet service.
+	return;	// Should never execute.
 }
 
 // Inbound frame callback is executed from the context of the ESPNOW task!
 // It is of great importance that this callback function not block, and
 // return quickly to avoid locking up the wifi driver.
 void lownet_inbound_handler(const esp_now_recv_info_t * info, const uint8_t* data, int len) {
-	// Discard any frames that don't match the size of our network frame.
-	if (len != sizeof(lownet_frame_t)) {
-		return;
-	}
+	if (len == sizeof(lownet_frame_t) && net_system.aes_key.size == 0) {
+		// Non-blocking queue send; if queue is full then packet is dropped.
+		if (xQueueSend(net_system.inbound, data, 0) != pdTRUE) {
+			// Error queueing data, likely errQUEUE_FULL.
+			// Packet is dropped.
+		}
+	} else if (len == sizeof(lownet_secure_frame_t) && net_system.aes_key.size != 0) {
+		lownet_secure_frame_t plain;
+		// Skip zero-init; decrypt method should overwrite the entire structure.
 
-	// Non-blocking queue send; if queue is full then packet is dropped.
-	if (xQueueSend(net_system.inbound, data, 0) != pdTRUE) {
-		// Error queueing data, likely errQUEUE_FULL.
-		// Packet is dropped.
-	}
-}
+		// Decrypt the secure frame back into plaintext.
+		net_system.decrypt((const lownet_secure_frame_t*)data, &plain);
 
-void lownet_sync_time(const lownet_frame_t* time_frame) {
-	if (time_frame->length != sizeof(lownet_time_t)) {
-		// Malformed time packet, do nothing.
-		return;
+		// And unpack the base frame, send it to the inbound queue.
+		if (xQueueSend(net_system.inbound, &plain.frame, 0) != pdTRUE) {
+			// Error queueing data, likely errQUEUE_FULL.
+			// Packet is dropped.
+		}
 	}
-
-	memcpy(&net_system.sync_time, time_frame->payload, sizeof(lownet_time_t));
-	net_system.sync_stamp = (esp_timer_get_time() / 1000);
 }
