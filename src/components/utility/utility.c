@@ -34,7 +34,7 @@ uint32_t hex_to_dec(const char* hex_digits) {
 
 int format_time(char* buffer, lownet_time_t* time)
 {
-	return sprintf(buffer, "%lus %u/256", time->seconds, time->parts);
+	return sprintf(buffer, "%lu.%lus", time->seconds, ((uint32_t)time->parts * 1000) / 256);
 }
 
 int format_id(char* buffer, uint8_t id)

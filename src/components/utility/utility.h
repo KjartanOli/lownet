@@ -7,7 +7,9 @@ int util_printable(char c);
 
 uint32_t hex_to_dec(const char* hex_digits);
 
-#define TIME_WIDTH 21
+// uint32 + '.' + uint32 + 's'
+#define TIME_WIDTH (11 + 1 + 11 + 1)
+
 // Usage: format_time(BUFFER, TIME)
 // Pre:   BUFFER != NULL, TIME != NULL
 //        sizeof BUFFER >= TIME_WIDTH
