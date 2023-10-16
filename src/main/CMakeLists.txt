@@ -1,5 +1,5 @@
 idf_component_register(
     SRCS "app_main.c"
     INCLUDE_DIRS "."
-	REQUIRES "network" "ping" "chat" "mask" "snoop" "commands" "serial"
+	REQUIRES "crypt" "network" "ping" "chat" "mask" "snoop" "commands" "serial" "mbedtls"
 )

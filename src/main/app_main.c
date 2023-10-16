@@ -1,7 +1,11 @@
 // CSTDLIB includes.
 #include <stdio.h>
 #include <string.h>
-#include <stdbool.h>
+
+#include <esp_log.h>
+#include <esp_random.h>
+
+#include <aes/esp_aes.h>
 
 // LowNet includes.
 #include "lownet.h"
@@ -12,6 +16,7 @@
 #include "snoop.h"
 #include "mask.h"
 #include "network.h"
+#include "crypt.h"
 
 #include "app_chat.h"
 #include "app_ping.h"
@@ -56,7 +61,12 @@ void help_command(char*)
 }
 
 void app_frame_dispatch(const lownet_frame_t* frame) {
-	switch(frame->protocol) {
+	// Mask the signing bits.
+	switch(frame->protocol & 0b00111111) {
+		case LOWNET_PROTOCOL_TIME:
+			// Ignore TIME packets, deprecated.
+			break;
+
 		case LOWNET_PROTOCOL_CHAT:
 			chat_receive(frame);
 			break;
@@ -64,6 +74,35 @@ void app_frame_dispatch(const lownet_frame_t* frame) {
 		case LOWNET_PROTOCOL_PING:
 			ping_receive(frame);
 			break;
+
+		case LOWNET_PROTOCOL_COMMAND:
+			// IMPLEMENT ME
+			break;
+	}
+}
+
+void two_way_test() {
+	// Encrypts and then decrypts a string, can be used to sanity check your
+	//	implementation.
+	lownet_secure_frame_t plain;
+	lownet_secure_frame_t cipher;
+	lownet_secure_frame_t back;
+
+	memset(&plain, 0, sizeof(lownet_secure_frame_t));
+	memset(&cipher, 0, sizeof(lownet_secure_frame_t));
+	memset(&back, 0, sizeof(lownet_secure_frame_t));
+
+	*((uint32_t*)plain.ivt) = 123456789;
+	const char* message = "some_text";
+	strcpy((char*)plain.frame.payload, message);
+
+	crypt_encrypt(&plain, &cipher);
+	crypt_decrypt(&cipher, &back);
+
+	if (strlen((char*)back.frame.payload) != strlen(message)) {
+		ESP_LOGE("APP", "Length violation");
+	} else {
+		serial_write_line((char*)back.frame.payload);
 	}
 }
 
@@ -72,12 +111,25 @@ void app_main(void)
 	char msg_in[MSG_BUFFER_LENGTH];
 	char msg_out[MSG_BUFFER_LENGTH];
 
+	// Generate 32 bytes of noise up front and dump the HEX out.  No explicit purpose except
+	//	convenience if you want an arbitrary 32 bytes.
+	uint32_t rand = esp_random();
+	uint32_t key_buffer[8];
+	for (int i = 0; i < 8; ++i) {
+		key_buffer[i] = esp_random();
+	}
+	ESP_LOG_BUFFER_HEX("Hex", key_buffer, 32);
 
 	// Initialize the serial services.
 	init_serial_service();
 
 	// Initialize the LowNet services.
-	lownet_init(app_frame_dispatch);
+	lownet_init(app_frame_dispatch, crypt_encrypt, crypt_decrypt);
+
+		// Dummy implementation -- this isn't true network time!  Following 2
+	//	lines are not needed when an actual source of network time is present.
+	lownet_time_t init_time = {1, 0};
+	lownet_set_time(&init_time);
 
 	while (true)
 		{
