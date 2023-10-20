@@ -1,11 +1,10 @@
 // CSTDLIB includes.
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include <esp_log.h>
 #include <esp_random.h>
-
-#include <aes/esp_aes.h>
 
 // LowNet includes.
 #include "lownet.h"
