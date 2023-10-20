@@ -23,8 +23,8 @@
 #define LOWNET_TIME_RESOLUTION 256
 #define LOWNET_BROADCAST_ADDRESS 0xFF
 
-#define LOWNET_KEY_SIZE_AES		32
-#define LOWNET_KEY_SIZE_RSA		256
+#define LOWNET_KEY_SIZE_AES 32
+#define LOWNET_KEY_SIZE_RSA 256
 
 // Lownet basic frame structure.
 typedef struct __attribute__((__packed__))
