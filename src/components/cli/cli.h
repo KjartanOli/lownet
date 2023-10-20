@@ -1,5 +1,5 @@
-#ifndef COMMANDS_H
-#define COMMANDS_H
+#ifndef CLI_H
+#define CLI_H
 
 #include <stddef.h>
 

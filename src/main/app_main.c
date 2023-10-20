@@ -11,7 +11,7 @@
 
 #include "serial_io.h"
 #include "utility.h"
-#include "commands.h"
+#include "cli.h"
 #include "snoop.h"
 #include "mask.h"
 #include "network.h"

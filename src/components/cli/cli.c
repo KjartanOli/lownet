@@ -1,4 +1,4 @@
-#include "commands.h"
+#include "cli.h"
 
 #include <string.h>
 #include <stdio.h>
