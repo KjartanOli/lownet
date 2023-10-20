@@ -31,6 +31,12 @@ const char* ERROR_ARGUMENT = "Argument error";
 // Post:  A list of available commands has been written to the serial port.
 void help_command(char*);
 
+// Usage: two_way_test(NULL)
+// Pre:   None, this command takes no arguments.
+// Post:  The string 'some text' has been encrypted and then decrypted
+//        and the result written to the serial port.
+void two_way_test(char*);
+
 const command_t commands[] = {
 	{"shout",   "/shout MSG                   Broadcast a message.", shout_command},
 	{"tell",    "/tell ID MSG or @ID MSG      Send a message to a specific node", tell_command},
@@ -83,9 +89,13 @@ void app_frame_dispatch(const lownet_frame_t* frame) {
 	}
 }
 
-void two_way_test() {
+void two_way_test(char*)
+{
+	if (!lownet_get_key())
+		return;
+
 	// Encrypts and then decrypts a string, can be used to sanity check your
-	//	implementation.
+	// implementation.
 	lownet_secure_frame_t plain;
 	lownet_secure_frame_t cipher;
 	lownet_secure_frame_t back;
