@@ -31,11 +31,11 @@ const char* ERROR_ARGUMENT = "Argument error";
 // Post:  A list of available commands has been written to the serial port.
 void help_command(char*);
 
-// Usage: two_way_test(NULL)
-// Pre:   None, this command takes no arguments.
-// Post:  The string 'some text' has been encrypted and then decrypted
+// Usage: two_way_test(STR)
+// Pre:   STR is a string
+// Post:  The STR has been encrypted and then decrypted
 //        and the result written to the serial port.
-void two_way_test(char*);
+void two_way_test(char* str);
 
 const command_t commands[] = {
 	{"shout",   "/shout MSG                   Broadcast a message.", shout_command},
@@ -48,7 +48,7 @@ const command_t commands[] = {
 	{"mask",    "/mask ID                     Pretend to be node ID", mask_command},
 	{"unmask",  "/unmask                      Stop id masking", unmask_command},
 	{"network", "/network                     Print information about the network", network_command},
-	{"testenc", "/testenc                     Verify that encryption and decryption function correctly", two_way_test},
+	{"testenc", "/testenc [STR]               Run STR through a encrypt/decrypt cycle to verify that encryption works", two_way_test},
 	{"help",    "/help                        Print this help", help_command}
 };
 
@@ -91,10 +91,15 @@ void app_frame_dispatch(const lownet_frame_t* frame) {
 	}
 }
 
-void two_way_test(char*)
+void two_way_test(char* str)
 {
-	if (!lownet_get_key())
+	if (!str)
 		return;
+	if (!lownet_get_key())
+		{
+			serial_write_line("No encryption key set!");
+			return;
+		}
 
 	// Encrypts and then decrypts a string, can be used to sanity check your
 	// implementation.
@@ -107,13 +112,12 @@ void two_way_test(char*)
 	memset(&back, 0, sizeof(lownet_secure_frame_t));
 
 	*((uint32_t*)plain.ivt) = 123456789;
-	const char* message = "some_text";
-	strcpy((char*)plain.frame.payload, message);
+	strcpy((char*)plain.frame.payload, str);
 
 	crypt_encrypt(&plain, &cipher);
 	crypt_decrypt(&cipher, &back);
 
-	if (strlen((char*)back.frame.payload) != strlen(message)) {
+	if (strlen((char*)back.frame.payload) != strlen(str)) {
 		ESP_LOGE("APP", "Length violation");
 	} else {
 		serial_write_line((char*)back.frame.payload);
