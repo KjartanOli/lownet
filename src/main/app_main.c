@@ -111,16 +111,16 @@ void two_way_test(char* str)
 	memset(&cipher, 0, sizeof(lownet_secure_frame_t));
 	memset(&back, 0, sizeof(lownet_secure_frame_t));
 
-	*((uint32_t*)plain.ivt) = 123456789;
-	strcpy((char*)plain.frame.payload, str);
+	*((uint32_t*) plain.ivt) = 123456789;
+	strcpy((char*) plain.frame.payload, str);
 
 	crypt_encrypt(&plain, &cipher);
 	crypt_decrypt(&cipher, &back);
 
-	if (strlen((char*)back.frame.payload) != strlen(str)) {
+	if (strlen((char*) back.frame.payload) != strlen(str)) {
 		ESP_LOGE("APP", "Length violation");
 	} else {
-		serial_write_line((char*)back.frame.payload);
+		serial_write_line((char*) back.frame.payload);
 	}
 }
 
