@@ -20,12 +20,6 @@
 #include "app_chat.h"
 #include "app_ping.h"
 
-const char* ERROR_OVERRUN = "ERROR // INPUT OVERRUN";
-const char* ERROR_UNKNOWN = "ERROR // PROCESSING FAILURE";
-
-const char* ERROR_COMMAND = "Command error";
-const char* ERROR_ARGUMENT = "Argument error";
-
 // Usage: help_command(NULL)
 // Pre:   None, this command takes no arguments.
 // Post:  A list of available commands has been written to the serial port.
