@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "app_ping.h"
+#include "ping.h"
 
 #include "serial_io.h"
 #include "utility.h"

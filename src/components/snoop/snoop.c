@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "serial_io.h"
-#include "app_ping.h"
+#include "ping.h"
 #include "utility.h"
 
 uint8_t snoop_level = SNOOP_LEVEL_NONE;

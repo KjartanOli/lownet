@@ -18,7 +18,7 @@
 #include "crypt.h"
 
 #include "app_chat.h"
-#include "app_ping.h"
+#include "ping.h"
 
 // Usage: help_command(NULL)
 // Pre:   None, this command takes no arguments.
