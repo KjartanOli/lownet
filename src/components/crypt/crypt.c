@@ -67,7 +67,7 @@ void crypt_encrypt(const lownet_secure_frame_t* plain, lownet_secure_frame_t* ci
 // Post:  If key == NULL encryption has been disabled
 //        Else KEY has been set as the encryption key to use for
 //        lownet communication.
-void crypt_command(char* args)
+void crypt_setkey_command(char* args)
 {
 	if (!args)
 		{
