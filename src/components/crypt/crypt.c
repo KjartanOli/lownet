@@ -35,8 +35,6 @@ void crypt_decrypt(const lownet_secure_frame_t* cipher, lownet_secure_frame_t* p
 
 void crypt_encrypt(const lownet_secure_frame_t* plain, lownet_secure_frame_t* cipher)
 {
-	memcpy(&plain->ivt, &cipher->ivt, LOWNET_IVT_SIZE);
-
 	const uint8_t* aes_key = lownet_get_key()->bytes;
 
 	esp_aes_context ctx;
@@ -49,12 +47,16 @@ void crypt_encrypt(const lownet_secure_frame_t* plain, lownet_secure_frame_t* ci
 			return;
 		}
 
+	unsigned char ivt[LOWNET_IVT_SIZE];
+	memcpy(ivt, &plain->ivt, LOWNET_IVT_SIZE);
+
+	memcpy(&cipher->ivt, &plain->ivt, LOWNET_IVT_SIZE);
 	esp_aes_crypt_cbc(&ctx,
 										ESP_AES_ENCRYPT,
 										MSG_LEN,
-										&plain->ivt,
 										&plain->frame,
 										&cipher->frame);
+										(unsigned char*) ivt,
 
 	esp_aes_free(&ctx);
 }
