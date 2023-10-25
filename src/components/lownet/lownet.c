@@ -29,7 +29,7 @@
 
 #define TIMEOUT_STARTUP ((TickType_t)(5000 / portTICK_PERIOD_MS))
 
-static uint8_t	aes_key_bytes[LOWNET_KEY_SIZE_AES];
+static uint8_t aes_key_bytes[LOWNET_KEY_SIZE_AES];
 
 struct {
 	TaskHandle_t service;
@@ -56,7 +56,7 @@ uint8_t net_initialized = 0;
 // Forward declarations.
 void lownet_service_main(void* pvTaskParam);
 void lownet_service_kill();
-void lownet_inbound_handler(const esp_now_recv_info_t * info, const uint8_t* data, int len);
+void lownet_inbound_handler(const esp_now_recv_info_t* info, const uint8_t* data, int len);
 
 
 void lownet_init(lownet_recv_fn receive_cb, lownet_cipher_fn encrypt_fn, lownet_cipher_fn decrypt_fn) {
@@ -66,7 +66,7 @@ void lownet_init(lownet_recv_fn receive_cb, lownet_cipher_fn encrypt_fn, lownet_
 	} else {
 		net_initialized = 1;
 		memset(&net_system, 0, sizeof(net_system));
-		net_system.aes_key.bytes = (uint8_t*)&aes_key_bytes;
+		net_system.aes_key.bytes = (uint8_t*) &aes_key_bytes;
 	}
 
 	ESP_ERROR_CHECK(nvs_flash_init());        // initialize NVS
