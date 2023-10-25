@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <esp_log.h>
 #include <aes/esp_aes.h>
 
 #include "serial_io.h"
@@ -95,4 +96,37 @@ void crypt_command(char* args)
 		}
 
 	lownet_set_key(&key);
+}
+
+void two_way_test(char* str)
+{
+	if (!str)
+		return;
+	if (!lownet_get_key())
+		{
+			serial_write_line("No encryption key set!");
+			return;
+		}
+
+	// Encrypts and then decrypts a string, can be used to sanity check your
+	// implementation.
+	lownet_secure_frame_t plain;
+	lownet_secure_frame_t cipher;
+	lownet_secure_frame_t back;
+
+	memset(&plain, 0, sizeof(lownet_secure_frame_t));
+	memset(&cipher, 0, sizeof(lownet_secure_frame_t));
+	memset(&back, 0, sizeof(lownet_secure_frame_t));
+
+	*((uint32_t*) plain.ivt) = 123456789;
+	strcpy((char*) plain.frame.payload, str);
+
+	crypt_encrypt(&plain, &cipher);
+	crypt_decrypt(&cipher, &back);
+
+	if (strlen((char*) back.frame.payload) != strlen(str)) {
+		ESP_LOGE("APP", "Length violation");
+	} else {
+		serial_write_line((char*) back.frame.payload);
+	}
 }

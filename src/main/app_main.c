@@ -25,12 +25,6 @@
 // Post:  A list of available commands has been written to the serial port.
 void help_command(char*);
 
-// Usage: two_way_test(STR)
-// Pre:   STR is a string
-// Post:  The STR has been encrypted and then decrypted
-//        and the result written to the serial port.
-void two_way_test(char* str);
-
 const command_t commands[] = {
 	{"shout",   "/shout MSG                   Broadcast a message.", shout_command},
 	{"tell",    "/tell ID MSG or @ID MSG      Send a message to a specific node", tell_command},
@@ -82,39 +76,6 @@ void app_frame_dispatch(const lownet_frame_t* frame) {
 		case LOWNET_PROTOCOL_COMMAND:
 			// IMPLEMENT ME
 			break;
-	}
-}
-
-void two_way_test(char* str)
-{
-	if (!str)
-		return;
-	if (!lownet_get_key())
-		{
-			serial_write_line("No encryption key set!");
-			return;
-		}
-
-	// Encrypts and then decrypts a string, can be used to sanity check your
-	// implementation.
-	lownet_secure_frame_t plain;
-	lownet_secure_frame_t cipher;
-	lownet_secure_frame_t back;
-
-	memset(&plain, 0, sizeof(lownet_secure_frame_t));
-	memset(&cipher, 0, sizeof(lownet_secure_frame_t));
-	memset(&back, 0, sizeof(lownet_secure_frame_t));
-
-	*((uint32_t*) plain.ivt) = 123456789;
-	strcpy((char*) plain.frame.payload, str);
-
-	crypt_encrypt(&plain, &cipher);
-	crypt_decrypt(&cipher, &back);
-
-	if (strlen((char*) back.frame.payload) != strlen(str)) {
-		ESP_LOGE("APP", "Length violation");
-	} else {
-		serial_write_line((char*) back.frame.payload);
 	}
 }
 
