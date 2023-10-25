@@ -12,7 +12,7 @@
 #include "snoop.h"
 #include "mask.h"
 
-#include "app_chat.h"
+#include "chat.h"
 
 void shout_command(char* args)
 {

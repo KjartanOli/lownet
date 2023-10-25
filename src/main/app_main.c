@@ -17,7 +17,7 @@
 #include "network.h"
 #include "crypt.h"
 
-#include "app_chat.h"
+#include "chat.h"
 #include "ping.h"
 
 // Usage: help_command(NULL)
