@@ -98,7 +98,7 @@ void crypt_command(char* args)
 	lownet_set_key(&key);
 }
 
-void two_way_test(char* str)
+void crypt_test_command(char* str)
 {
 	if (!str)
 		return;

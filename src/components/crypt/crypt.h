@@ -14,10 +14,10 @@ void crypt_encrypt(const lownet_secure_frame_t* plain, lownet_secure_frame_t* ci
 //        with zeroes.
 void crypt_command(char* args);
 
-// Usage: two_way_test(STR)
+// Usage: crypt_test_command(STR)
 // Pre:   STR is a string
 // Post:  The STR has been encrypted and then decrypted
 //        and the result written to the serial port.
-void two_way_test(char* str);
+void crypt_test_command(char* str);
 
 #endif

@@ -36,7 +36,7 @@ const command_t commands[] = {
 	{"mask",    "/mask ID                     Pretend to be node ID", mask_command},
 	{"unmask",  "/unmask                      Stop id masking", unmask_command},
 	{"network", "/network                     Print information about the network", network_command},
-	{"testenc", "/testenc [STR]               Run STR through a encrypt/decrypt cycle to verify that encryption works", two_way_test},
+	{"testenc", "/testenc [STR]               Run STR through a encrypt/decrypt cycle to verify that encryption works", crypt_test_command},
 	{"help",    "/help                        Print this help", help_command}
 };
 
