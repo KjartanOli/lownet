@@ -27,9 +27,9 @@ void crypt_decrypt(const lownet_secure_frame_t* cipher, lownet_secure_frame_t* p
 	esp_aes_crypt_cbc(&ctx,
 										ESP_AES_DECRYPT,
 										MSG_LEN,
-										&cipher->ivt,
-										&cipher->frame,
-										&plain->frame);
+										(unsigned char*) &cipher->ivt,
+										(unsigned char*) &cipher->frame,
+										(unsigned char*) &plain->frame);
 	esp_aes_free(&ctx);
 }
 
@@ -54,9 +54,9 @@ void crypt_encrypt(const lownet_secure_frame_t* plain, lownet_secure_frame_t* ci
 	esp_aes_crypt_cbc(&ctx,
 										ESP_AES_ENCRYPT,
 										MSG_LEN,
-										&plain->frame,
-										&cipher->frame);
 										(unsigned char*) ivt,
+										(unsigned char*) &plain->frame,
+										(unsigned char*) &cipher->frame);
 
 	esp_aes_free(&ctx);
 }
