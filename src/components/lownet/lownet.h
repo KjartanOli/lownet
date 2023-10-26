@@ -46,7 +46,7 @@ typedef struct __attribute__((__packed__))
 } lownet_secure_frame_t;
 
 // Lownet timestamp structure.
-typedef struct {
+typedef struct __attribute__((__packed__)) {
 	uint32_t seconds; // Seconds since UNIX epoch.
 	uint8_t parts; // Milliseconds, 1000/256 resolution.
 } lownet_time_t;
