@@ -36,10 +36,17 @@ typedef enum
 	SIG2 = 0b11,
 } frame_type_t;
 
+typedef uint8_t hash_t[CMD_HASH_SIZE];
+typedef uint8_t signature_t[CMD_BLOCK_SIZE];
+
+static_assert(sizeof(hash_t) == CMD_HASH_SIZE, "hash_t size");
+static_assert(sizeof(signature_t) == CMD_BLOCK_SIZE, "signature_t size");
+
 struct {
 	state_t state;
 	uint64_t last_valid;
-	char hash[CMD_HASH_SIZE];
+	hash_t hash;
+	signature_t signature;
 } state;
 
 // Usage: get_frame_type(FRAME)
