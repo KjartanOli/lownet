@@ -89,6 +89,9 @@ void command_receive(const lownet_frame_t* frame)
 {
 	const cmd_packet_t* command = (const cmd_packet_t*) &frame->payload;
 
+	if (command->sequence < state.last_valid)
+		return;
+
 	char buffer[255];
 	sprintf(buffer, "Command {\n\tType: %d\n\tSequence: %llx,\n\tCommand: %d\n}\n", get_frame_type(frame), command->sequence, command->type);
 	serial_write_line(buffer);
