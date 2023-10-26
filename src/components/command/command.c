@@ -1,6 +1,8 @@
 #include "command.h"
 
 #include <stdio.h>
+#include <string.h>
+
 #include "serial_io.h"
 
 #define CMD_HASH_SIZE 32
