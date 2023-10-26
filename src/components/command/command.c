@@ -50,6 +50,22 @@ frame_type_t get_frame_type(const lownet_frame_t* frame)
 	return (frame->protocol & 0b11000000) >> 6;
 }
 
+// Usage: command_ready_next()
+// Pre:   Any command frame currently being processed has either
+//        completed processing or been discarded
+// Post: The command module is ready to receive another command packet
+void command_ready_next()
+{
+	state.state = LISTENING;
+	memset(hash, 0, CMD_HASH_SIZE);
+}
+
+void command_init()
+{
+	command_ready_next();
+	state.last_valid = 0;
+}
+
 void command_receive(const lownet_frame_t* frame)
 {
 	const cmd_packet_t* command = (const cmd_packet_t*) &frame->payload;
