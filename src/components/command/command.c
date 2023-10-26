@@ -6,14 +6,6 @@
 #define CMD_HASH_SIZE 32
 #define CMD_BLOCK_SIZE 256
 
-// Usage: get_frame_type(FRAME)
-// Pre:   FRAME is a valid lownet frame
-// Value: The type of the frame
-uint8_t get_frame_type(const lownet_frame_t* frame)
-{
-	return (frame->protocol & 0b11000000) >> 6;
-}
-
 typedef struct __attribute__((__packed__))
 {
 	uint64_t sequence;
@@ -48,6 +40,14 @@ struct {
 	state_t state;
 	uint64_t last_valid;
 } state;
+
+// Usage: get_frame_type(FRAME)
+// Pre:   FRAME is a valid lownet frame
+// Value: The type of the frame
+frame_type_t get_frame_type(const lownet_frame_t* frame)
+{
+	return (frame->protocol & 0b11000000) >> 6;
+}
 
 void command_receive(const lownet_frame_t* frame)
 {
