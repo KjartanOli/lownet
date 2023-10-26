@@ -39,6 +39,7 @@ typedef enum
 struct {
 	state_t state;
 	uint64_t last_valid;
+	char hash[CMD_HASH_SIZE];
 } state;
 
 // Usage: get_frame_type(FRAME)
