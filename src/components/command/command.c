@@ -57,7 +57,7 @@ frame_type_t get_frame_type(const lownet_frame_t* frame)
 void command_ready_next()
 {
 	state.state = LISTENING;
-	memset(hash, 0, CMD_HASH_SIZE);
+	memset(&state.hash, 0, CMD_HASH_SIZE);
 }
 
 void command_init()
