@@ -100,6 +100,9 @@ void app_main(void)
 	// Initialize the LowNet services.
 	lownet_init(app_frame_dispatch, crypt_encrypt, crypt_decrypt);
 
+	// Initialize the command module
+	command_init();
+
 		// Dummy implementation -- this isn't true network time!  Following 2
 	//	lines are not needed when an actual source of network time is present.
 	lownet_time_t init_time = {1, 0};
