@@ -92,6 +92,10 @@ void command_receive(const lownet_frame_t* frame)
 	if (command->sequence < state.last_valid)
 		return;
 
+	frame_type_t type = get_frame_type(frame);
+	if (type == UNSIGNED)
+		return;
+
 	char buffer[255];
 	sprintf(buffer, "Command {\n\tType: %d\n\tSequence: %llx,\n\tCommand: %d\n}\n", get_frame_type(frame), command->sequence, command->type);
 	serial_write_line(buffer);
