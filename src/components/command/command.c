@@ -1,6 +1,7 @@
 #include "command.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "serial_io.h"
@@ -67,6 +68,15 @@ void command_ready_next()
 {
 	state.state = LISTENING;
 	memset(&state.hash, 0, CMD_HASH_SIZE);
+}
+
+// Usage: compare_hash(HASH)
+// Pre:   HASH is a buffer of size CMD_HASH_SIZE
+// Value: true if HASH is equal to the hash of the frame currently
+//        being processed, false otherwise
+bool compare_hash(const hash_t* hash)
+{
+	return memcmp(hash, &state.hash, sizeof(hash_t)) == 0;
 }
 
 void command_init()
