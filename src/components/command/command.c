@@ -6,11 +6,6 @@
 #define CMD_HASH_SIZE 32
 #define CMD_BLOCK_SIZE 256
 
-#define FRAME_TYPE_UNSIGNED 0b00
-#define FRAME_TYPE_SIGNED 0b01
-#define FRAME_TYPE_SIG1 0b10
-#define FRAME_TYPE_SIG2 0b11
-
 // Usage: get_frame_type(FRAME)
 // Pre:   FRAME is a valid lownet frame
 // Value: The type of the frame
@@ -40,6 +35,14 @@ typedef enum
 	SIGNATURE_1,
 	SIGNATURE_2
 } state_t;
+
+typedef enum
+{
+	UNSIGNED = 0b00,
+	SIGNED = 0b01,
+	SIG1 = 0b10,
+	SIG2 = 0b11,
+} frame_type_t;
 
 struct {
 	state_t state;
