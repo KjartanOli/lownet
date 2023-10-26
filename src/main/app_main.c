@@ -19,6 +19,7 @@
 
 #include "chat.h"
 #include "ping.h"
+#include "command.h"
 
 // Usage: help_command(NULL)
 // Pre:   None, this command takes no arguments.
@@ -74,7 +75,7 @@ void app_frame_dispatch(const lownet_frame_t* frame) {
 			break;
 
 		case LOWNET_PROTOCOL_COMMAND:
-			// IMPLEMENT ME
+			command_receive(frame);
 			break;
 	}
 }
