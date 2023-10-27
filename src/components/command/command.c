@@ -83,7 +83,7 @@ void command_ready_next()
 // Pre:   HASH is a buffer of size CMD_HASH_SIZE
 // Value: true if HASH is equal to the hash of the frame currently
 //        being processed, false otherwise
-bool compare_hash(const hash_t* hash)
+bool compare_hash(const hash_t hash)
 {
 	return memcmp(hash, &state.hash, sizeof(hash_t)) == 0;
 }
