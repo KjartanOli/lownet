@@ -53,6 +53,7 @@ static_assert(sizeof(signature_t) == CMD_BLOCK_SIZE, "signature_t size");
 struct {
 	state_t state;
 	uint64_t last_valid;
+	cmd_packet_t current_cmd;
 	hash_t hash;
 	signature_t signature;
 	mbedtls_pk_context pk;
@@ -73,6 +74,7 @@ frame_type_t get_frame_type(const lownet_frame_t* frame)
 void command_ready_next()
 {
 	state.state = LISTENING;
+	memset(&state.current_cmd, 0, sizeof(cmd_packet_t));
 	memset(&state.hash, 0, sizeof(hash_t));
 	memset(&state.signature, 0, sizeof(signature_t));
 }
