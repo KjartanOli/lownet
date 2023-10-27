@@ -59,7 +59,7 @@ static_assert(sizeof(signature_t) == CMD_BLOCK_SIZE, "signature_t size");
 struct {
 	state_t state;
 	uint64_t last_valid;
-	cmd_packet_t current_cmd;
+	lownet_frame_t current_cmd;
 	hash_t hash;
 	signature_t signature;
 	mbedtls_pk_context pk;
@@ -80,7 +80,7 @@ frame_type_t get_frame_type(const lownet_frame_t* frame)
 void command_ready_next()
 {
 	state.state = LISTENING;
-	memset(&state.current_cmd, 0, sizeof(cmd_packet_t));
+	memset(&state.current_cmd, 0, sizeof(lownet_frame_t));
 	memset(&state.hash, 0, sizeof(hash_t));
 	memset(&state.signature, 0, sizeof(signature_t));
 }
@@ -142,15 +142,16 @@ void command_test_cmd(const uint8_t* data)
 // Usage: command_execute(COMMAND)
 // Pre:   The signature of the COMMAND has been verified
 // Post:  The COMMAND has been executed
-void command_execute(const cmd_packet_t* command)
+void command_execute(const lownet_frame_t* frame)
 {
+	const cmd_packet_t* command = (const cmd_packet_t*) &frame->payload;
 	switch (command->type)
 		{
 		case TIME:
 			command_time_cmd(command->contents);
 			return;
 		case TEST:
-			command_test_cmd(command->contents);
+			command_test_cmd(frame);
 			return;
 		}
 }
@@ -189,7 +190,7 @@ void handle_command_frame(const lownet_frame_t* frame)
 			return;
 		}
 
-	memcpy(&state.current_cmd, command, sizeof(cmd_packet_t));
+	memcpy(&state.current_cmd, frame, sizeof(lownet_frame_t));
 	state.state = WAIT_SIG;
 
 	char buffer[255];
