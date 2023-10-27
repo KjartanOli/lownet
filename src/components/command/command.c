@@ -6,6 +6,10 @@
 
 #include "serial_io.h"
 
+#include <mbedtls/sha256.h>
+#include <mbedtls/rsa.h>
+#include <mbedtls/pk.h>
+
 #define CMD_HASH_SIZE 32
 #define CMD_BLOCK_SIZE 256
 
