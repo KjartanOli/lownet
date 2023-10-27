@@ -162,7 +162,6 @@ void command_execute(const cmd_packet_t* command)
 //       and if correct the command has been executed
 void signature_received()
 {
-	/* print_rsa(state.signature); */
 	if (!verify_signature())
 		{
 			// Invalid signature, discard the command.
