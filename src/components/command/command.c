@@ -124,12 +124,35 @@ bool verify_signature()
 	return memcmp(expected, signature, sizeof(signature_t)) == 0;
 }
 
-// Usage: command_execute()
-// Pre:   The signature of the current command has been verified
-// Post:  The current command has been executed
-void command_execute()
+// Usage: command_time_cmd(TIME)
+// Pre:   None
+// Post:  System time has been set to TIME
+void command_time_cmd(const lownet_time_t* time)
 {
-	serial_write_line("executing");
+	lownet_set_time(time);
+	serial_write_line("Time update received");
+}
+
+// 
+void command_test_cmd(const uint8_t* data)
+{
+	
+}
+
+// Usage: command_execute(COMMAND)
+// Pre:   The signature of the COMMAND has been verified
+// Post:  The COMMAND has been executed
+void command_execute(const cmd_packet_t* command)
+{
+	switch (command->type)
+		{
+		case TIME:
+			command_time_cmd(command->contents);
+			return;
+		case TEST:
+			command_test_cmd(command->contents);
+			return;
+		}
 }
 
 // Usage: signature_received()
@@ -147,7 +170,7 @@ void signature_received()
 			return;
 		}
 
-	command_execute();
+	command_execute(&state.current_cmd);
 }
 
 void handle_command_frame(const lownet_frame_t* frame)
