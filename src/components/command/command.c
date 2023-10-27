@@ -44,6 +44,12 @@ typedef enum
 	SIG2 = 0b11,
 } frame_type_t;
 
+typedef enum
+{
+	TIME = 0x01,
+	TEST = 0x02,
+} command_type_t;
+
 typedef uint8_t hash_t[CMD_HASH_SIZE];
 typedef uint8_t signature_t[CMD_BLOCK_SIZE];
 
