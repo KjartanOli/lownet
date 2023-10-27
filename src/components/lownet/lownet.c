@@ -107,7 +107,7 @@ void lownet_init(lownet_recv_fn receive_cb, lownet_cipher_fn encrypt_fn, lownet_
 	xTaskCreatePinnedToCore(
 		lownet_service_main,
 		"lownet_service",
-		2048,
+		4096,
 		NULL, // Pass no params into task method.
 		LOWNET_SERVICE_PRIO,
 		&net_system.service,
