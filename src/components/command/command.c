@@ -74,6 +74,7 @@ void command_ready_next()
 {
 	state.state = LISTENING;
 	memset(&state.hash, 0, sizeof(hash_t));
+	memset(&state.signature, 0, sizeof(signature_t));
 }
 
 // Usage: compare_hash(HASH)
