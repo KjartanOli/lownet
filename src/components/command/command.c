@@ -54,6 +54,7 @@ struct {
 	uint64_t last_valid;
 	hash_t hash;
 	signature_t signature;
+	mbedtls_pk_context pk;
 } state;
 
 // Usage: get_frame_type(FRAME)
@@ -87,6 +88,12 @@ void command_init()
 {
 	command_ready_next();
 	state.last_valid = 0;
+	mbedtls_pk_init(&state.pk);
+
+	if (mbedtls_pk_parse_public_key(&state.pk,
+																	(const unsigned char*) lownet_get_signing_key(),
+																	strlen(lownet_get_signing_key()) + 1))
+		serial_write_line("failed to init public key");
 }
 
 void command_receive(const lownet_frame_t* frame)
