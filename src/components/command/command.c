@@ -100,18 +100,146 @@ void command_init()
 		serial_write_line("failed to init public key");
 }
 
-void command_receive(const lownet_frame_t* frame)
+// Usage: verify_signature()
+// Pre:   A full signature has been received
+// Value: true if the received signature matches the current command
+bool verify_signature()
+{
+	signature_t signature;
+	mbedtls_rsa_public(mbedtls_pk_rsa(state.pk),
+										 state.signature,
+										 signature);
+
+	signature_t expected;
+	memset(expected, 0, 220);
+	memset(expected + 220, 1, 4);
+	memcpy(expected + 220 + 4, state.hash, sizeof(hash_t));
+
+	return memcmp(expected, signature, sizeof(signature_t)) == 0;
+}
+
+// Usage: command_execute()
+// Pre:   The signature of the current command has been verified
+// Post:  The current command has been executed
+void command_execute()
+{
+	serial_write_line("executing");
+}
+
+// Usage: signature_received()
+// Pre:   A full signature for the current command frame has been
+//        received
+// Post: The signature of the current command frame has been verified
+//       and if correct the command has been executed
+void signature_received()
+{
+	/* print_rsa(state.signature); */
+	if (!verify_signature())
+		{
+			// Invalid signature, discard the command.
+			command_ready_next();
+			return;
+		}
+
+	command_execute();
+}
+
+void handle_command_frame(const lownet_frame_t* frame)
 {
 	const cmd_packet_t* command = (const cmd_packet_t*) &frame->payload;
-
 	if (command->sequence < state.last_valid)
 		return;
 
-	frame_type_t type = get_frame_type(frame);
-	if (type == UNSIGNED)
-		return;
+	// Discard command in processing to handle this new one.
+	// TODO: Allow multiple commands at the same time.
+	command_ready_next();
+
+	if (mbedtls_sha256((const unsigned char*) frame, sizeof(lownet_frame_t), state.hash, 0))
+		{
+			// Something went wrong hashing the frame, discard it.
+			command_ready_next();
+			return;
+		}
+
+	memcpy(&state.current_cmd, command, sizeof(cmd_packet_t));
+	state.state = WAIT_SIG;
 
 	char buffer[255];
 	sprintf(buffer, "Command {\n\tType: %d\n\tSequence: %llx,\n\tCommand: %d\n}\n", get_frame_type(frame), command->sequence, command->type);
 	serial_write_line(buffer);
+}
+
+void handle_signature_part1(const cmd_signature_t* signature)
+{
+	memcpy(state.signature, signature->sig_part, sizeof signature->sig_part);
+	if (state.state == WAIT_SIG)
+		{
+			state.state = WAIT_SIG2;
+			return;
+		}
+
+	if (state.state == WAIT_SIG1)
+		signature_received();
+}
+
+void handle_signature_part2(const cmd_signature_t* signature)
+{
+	memcpy(state.signature + (sizeof(signature_t) / 2), signature->sig_part, sizeof signature->sig_part);
+	if (state.state == WAIT_SIG)
+		{
+			state.state = WAIT_SIG1;
+			return;
+		}
+
+	if (state.state == WAIT_SIG2)
+		signature_received();
+}
+
+// Usage: handle_signature_frame(FRAME)
+// Pre:   get_frame_type(FRAME) = SIG1 or SIG2
+// Post:  FRAME has been processed
+void handle_signature_frame(const lownet_frame_t* frame)
+{
+	frame_type_t type = get_frame_type(frame);
+	const cmd_signature_t* signature = (const cmd_signature_t*) &frame->payload;
+
+	// If the msg hash does not match the current command this is a
+	// signature for a different command.  Discard it.
+	if (!compare_hash(signature->hash_msg))
+		{
+			serial_write_line("hash mismatch");
+			return;
+		}
+
+
+	switch (type)
+		{
+		case SIG1:
+			handle_signature_part1(signature);
+			return;
+		case SIG2:
+			handle_signature_part2(signature);
+		default:
+			return;
+		}
+}
+
+void command_receive(const lownet_frame_t* frame)
+{
+	frame_type_t type = get_frame_type(frame);
+
+	switch (type)
+		{
+		case UNSIGNED:
+			return;
+
+		case SIGNED:
+			handle_command_frame(frame);
+			return;
+
+		case SIG1:
+		case SIG2:
+			handle_signature_frame(frame);
+			return;
+		}
 }
