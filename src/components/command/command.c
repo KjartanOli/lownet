@@ -31,8 +31,9 @@ typedef struct __attribute__((__packed__))
 typedef enum
 {
 	LISTENING,
-	SIGNATURE_1,
-	SIGNATURE_2
+	WAIT_SIG,
+	WAIT_SIG1,
+	WAIT_SIG2,
 } state_t;
 
 typedef enum
