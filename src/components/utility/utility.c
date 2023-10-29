@@ -11,6 +11,11 @@ int util_printable(char c) {
 	);
 }
 
+uint8_t min(uint8_t a, uint8_t b)
+{
+	return (a <= b) ? a : b;
+}
+
 uint32_t hex_to_dec(const char* hex_digits) {
 	const char* map = "0123456789abcdef";
 	uint32_t acc = 0x00000000;
