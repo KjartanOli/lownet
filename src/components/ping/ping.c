@@ -24,10 +24,11 @@ void ping_command(char* args)
 			return;
 		}
 
-	ping(dest);
+	ping(dest, NULL, 0);
 }
 
-void ping(uint8_t node) {
+void ping(uint8_t node, const uint8_t* payload, uint8_t length)
+{
 	lownet_frame_t frame;
 	frame.source = (mask_id ? mask_id : lownet_get_device_id());
 	frame.destination = node;
@@ -35,6 +36,14 @@ void ping(uint8_t node) {
 	frame.length = sizeof(ping_packet_t);
 	((ping_packet_t*) frame.payload)->timestamp_out = lownet_get_time();
 	((ping_packet_t*) frame.payload)->origin = (mask_id ? mask_id : lownet_get_device_id());
+
+	if (payload)
+		{
+			memcpy(frame.payload + frame.length,
+						 payload,
+						 min(LOWNET_PAYLOAD_SIZE - sizeof(ping_packet_t), length));
+			frame.length += min(LOWNET_PAYLOAD_SIZE - sizeof(ping_packet_t), length);
+		}
 
 	lownet_send(&frame);
 }
