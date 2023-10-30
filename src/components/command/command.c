@@ -6,6 +6,7 @@
 
 #include "serial_io.h"
 #include "ping.h"
+#include "utility.h"
 
 #include <mbedtls/sha256.h>
 #include <mbedtls/rsa.h>
@@ -235,13 +236,23 @@ void handle_signature_part2(const cmd_signature_t* signature)
 // Post:  FRAME has been processed
 void handle_signature_frame(const lownet_frame_t* frame)
 {
+	const static lownet_time_t timeout = {10, 0};
 	frame_type_t type = get_frame_type(frame);
 	const cmd_signature_t* signature = (const cmd_signature_t*) &frame->payload;
 
 	// If the msg hash does not match the current command this is a
 	// signature for a different command.  Discard it.
 	if (!compare_hash(signature->hash_msg))
+		return;
+
+	lownet_time_t now = lownet_get_time();
+	lownet_time_t diff = time_diff(&state.command_received, &now);
+	if (compare_time(&diff, &timeout) > 0)
+		{
+			// Signature took to long to arrive, discard the command
+			command_ready_next();
 			return;
+		}
 
 	switch (type)
 		{
