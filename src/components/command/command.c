@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "serial_io.h"
+#include "ping.h"
 
 #include <mbedtls/sha256.h>
 #include <mbedtls/rsa.h>
@@ -130,13 +131,17 @@ bool verify_signature()
 void command_time_cmd(const lownet_time_t* time)
 {
 	lownet_set_time(time);
-	serial_write_line("Time update received");
 }
 
-// 
-void command_test_cmd(const uint8_t* data)
+// Usage: command_test_cmd(FRAME)
+// Pre:   FRAME's protocol is the command protocol, the command
+//        contained in FRAME is of type Test
+// Post: A ping has been sent to FRAME's source, as per the Test
+//       command specification
+void command_test_cmd(const lownet_frame_t* frame)
 {
-	
+	const cmd_packet_t* command = (const cmd_packet_t*) &frame->payload;
+	ping(frame->source, command->contents, 180);
 }
 
 // Usage: command_execute(COMMAND)
@@ -148,7 +153,7 @@ void command_execute(const lownet_frame_t* frame)
 	switch (command->type)
 		{
 		case TIME:
-			command_time_cmd(command->contents);
+			command_time_cmd((const lownet_time_t*) command->contents);
 			return;
 		case TEST:
 			command_test_cmd(frame);
