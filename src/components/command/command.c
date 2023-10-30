@@ -197,10 +197,6 @@ void handle_command_frame(const lownet_frame_t* frame)
 
 	memcpy(&state.current_cmd, frame, sizeof(lownet_frame_t));
 	state.state = WAIT_SIG;
-
-	char buffer[255];
-	sprintf(buffer, "Command {\n\tType: %d\n\tSequence: %llx,\n\tCommand: %d\n}\n", get_frame_type(frame), command->sequence, command->type);
-	serial_write_line(buffer);
 }
 
 void handle_signature_part1(const cmd_signature_t* signature)
@@ -240,11 +236,7 @@ void handle_signature_frame(const lownet_frame_t* frame)
 	// If the msg hash does not match the current command this is a
 	// signature for a different command.  Discard it.
 	if (!compare_hash(signature->hash_msg))
-		{
-			serial_write_line("hash mismatch");
 			return;
-		}
-
 
 	switch (type)
 		{
