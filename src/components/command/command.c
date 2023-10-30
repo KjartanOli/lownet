@@ -60,6 +60,7 @@ static_assert(sizeof(signature_t) == CMD_BLOCK_SIZE, "signature_t size");
 struct {
 	state_t state;
 	uint64_t last_valid;
+	lownet_time_t command_received;
 	lownet_frame_t current_cmd;
 	hash_t hash;
 	signature_t signature;
@@ -82,6 +83,7 @@ void command_ready_next()
 {
 	state.state = LISTENING;
 	memset(&state.current_cmd, 0, sizeof(lownet_frame_t));
+	memset(&state.command_received, 0, sizeof(lownet_time_t));
 	memset(&state.hash, 0, sizeof(hash_t));
 	memset(&state.signature, 0, sizeof(signature_t));
 }
@@ -188,6 +190,8 @@ void handle_command_frame(const lownet_frame_t* frame)
 	// TODO: Allow multiple commands at the same time.
 	command_ready_next();
 
+	lownet_time_t now = lownet_get_time();
+	memcpy(&state.command_received, &now, sizeof(lownet_time_t));
 	if (mbedtls_sha256((const unsigned char*) frame, sizeof(lownet_frame_t), state.hash, 0))
 		{
 			// Something went wrong hashing the frame, discard it.
