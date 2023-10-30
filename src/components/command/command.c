@@ -258,6 +258,9 @@ void handle_signature_frame(const lownet_frame_t* frame)
 			return;
 		}
 
+	if (memcmp(state.keyhash, signature->hash_key, sizeof(hash_t)) != 0)
+			return;
+
 	switch (type)
 		{
 		case SIG1:
