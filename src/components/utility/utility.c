@@ -16,6 +16,20 @@ uint8_t min(uint8_t a, uint8_t b)
 	return (a <= b) ? a : b;
 }
 
+uint32_t time_to_milliseconds(const lownet_time_t* time)
+{
+	return time->seconds * LOWNET_TIME_RESOLUTION + time->parts;
+}
+
+lownet_time_t time_from_milliseconds(uint32_t millis)
+{
+	lownet_time_t time;
+	time.seconds = millis / LOWNET_TIME_RESOLUTION;
+	time.parts = millis % LOWNET_TIME_RESOLUTION;
+
+	return time;
+}
+
 int compare_time(const lownet_time_t* lhs, const lownet_time_t* rhs)
 {
 	if (lhs->seconds < rhs->seconds)
@@ -31,6 +45,11 @@ int compare_time(const lownet_time_t* lhs, const lownet_time_t* rhs)
 			else
 				return 0;
 		}
+}
+
+lownet_time_t time_diff(const lownet_time_t* a, const lownet_time_t* b)
+{
+	return time_from_milliseconds(time_to_milliseconds(b) - time_to_milliseconds(a));
 }
 
 uint32_t hex_to_dec(const char* hex_digits) {

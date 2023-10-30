@@ -70,11 +70,8 @@ void ping_receive(const lownet_frame_t* frame) {
 		{
 			lownet_time_t now = lownet_get_time();
 			ping_packet_t* packet = ((ping_packet_t*) frame->payload);
-			uint32_t t = (now.seconds * LOWNET_TIME_RESOLUTION + now.parts) - (packet->timestamp_out.seconds * LOWNET_TIME_RESOLUTION + packet->timestamp_out.parts);
 
-			lownet_time_t rtt;
-			rtt.seconds = t / LOWNET_TIME_RESOLUTION;
-			rtt.parts = t % LOWNET_TIME_RESOLUTION;
+			lownet_time_t rtt = time_diff(&packet->timestamp_out, &now);
 
 			// reply from + id + rtt: + time + null
 			char buffer[12 + ID_WIDTH + 6 + TIME_WIDTH + 1];
