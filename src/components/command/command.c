@@ -66,6 +66,7 @@ struct {
 	hash_t hash;
 	signature_t signature;
 	mbedtls_pk_context pk;
+	hash_t keyhash;
 } state;
 
 // Usage: get_frame_type(FRAME)
@@ -108,6 +109,9 @@ void command_init()
 																	(const unsigned char*) lownet_get_signing_key(),
 																	strlen(lownet_get_signing_key()) + 1))
 		serial_write_line("failed to init public key");
+
+	if (mbedtls_sha256((const unsigned char*) lownet_get_signing_key(), strlen(lownet_get_signing_key()), state.keyhash, 0))
+		serial_write_line("failed to hash public key");
 }
 
 // Usage: verify_signature()
