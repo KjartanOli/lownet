@@ -177,6 +177,7 @@ void signature_received()
 			return;
 		}
 
+	state.last_valid = ((const cmd_packet_t*) state.current_cmd.payload)->sequence;
 	command_execute(&state.current_cmd);
 }
 
