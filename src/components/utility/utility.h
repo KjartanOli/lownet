@@ -12,6 +12,12 @@ uint8_t min(uint8_t a, uint8_t b);
 
 uint32_t hex_to_dec(const char* hex_digits);
 
+// Usage: compare_time(LHS, RHS)
+// Pre:   LSH != NULL, RHS != NULL
+// Value: -1 if LSH is smaller than RHS
+//         0 if LSH is equal to RHS
+//         1 if LSH is greater than RHS
+int compare_time(const lownet_time_t* lhs, const lownet_time_t* rhs);
 // uint32 + '.' + uint32 + 's'
 #define TIME_WIDTH (11 + 1 + 11 + 1)
 

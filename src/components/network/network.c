@@ -10,28 +10,6 @@
 network_node_t network[NETWORK_MAX_SIZE];
 size_t network_size = 0;
 
-// Usage: compare_time(LHS, RHS)
-// Pre:   LSH != NULL, RHS != NULL
-// Value: -1 if LSH is smaller than RHS
-//         0 if LSH is equal to RHS
-//         1 if LSH is greater than RHS
-int compare_time(const lownet_time_t* lhs, const lownet_time_t* rhs)
-{
-	if (lhs->seconds < rhs->seconds)
-		return -1;
-	else if (lhs->seconds > rhs->seconds)
-		return 1;
-	else
-		{
-			if (lhs->parts < rhs->parts)
-				return -1;
-			else if (lhs->parts > rhs->parts)
-				return 1;
-			else
-				return 0;
-		}
-}
-
 void network_command(char*)
 {
 	serial_write_line("Network:");
