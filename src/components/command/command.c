@@ -135,15 +135,6 @@ bool compare_signatures(const signature_t* a, const signature_t* b)
 	return compare_buffers((const uint8_t*) a, (const uint8_t*) b, sizeof(signature_t));
 }
 
-// Usage: compare_hash(HASH)
-// Pre:   HASH is a buffer of size CMD_HASH_SIZE
-// Value: true if HASH is equal to the hash of the frame currently
-//        being processed, false otherwise
-bool compare_hash(const hash_t hash)
-{
-	return memcmp(hash, &state.hash, sizeof(hash_t)) == 0;
-}
-
 // Usage: public_key_init(PEM, KEY)
 // Pre:   PEM is a pem encoded public key
 //        KEY != NULL
