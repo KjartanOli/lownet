@@ -110,12 +110,21 @@ int hash(const char* data, size_t length, hash_t* hash)
 												0);
 }
 
+// Usage: compare_buffers(A, B, SIZE)
+// Pre:   A != NULL, B != NULL
+//        A and B are buffers of size SIZE
+// Value: true if A and B are equal, false otherwise
+bool compare_buffers(const uint8_t* a, const uint8_t* b, uint8_t size)
+{
+	return memcmp(a, b, size) == 0;
+}
+
 // Usage: compare_hashes(A, B)
 // Pre:   A != NULL, B != NULL
 // Value: true if A and B are equal, false otherwise
 bool compare_hashes(const hash_t* a, const hash_t* b)
 {
-	return memcmp(a, b, sizeof(hash_t)) == 0;
+	return compare_buffers((const uint8_t*) a, (const uint8_t*) b, sizeof(hash_t));
 }
 
 // Usage: compare_hash(HASH)
