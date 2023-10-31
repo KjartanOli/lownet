@@ -15,6 +15,12 @@
 #define CMD_HASH_SIZE 32
 #define CMD_BLOCK_SIZE 256
 
+typedef uint8_t hash_t[CMD_HASH_SIZE];
+typedef uint8_t signature_t[CMD_BLOCK_SIZE];
+
+static_assert(sizeof(hash_t) == CMD_HASH_SIZE, "hash_t size");
+static_assert(sizeof(signature_t) == CMD_BLOCK_SIZE, "signature_t size");
+
 typedef struct __attribute__((__packed__))
 {
 	uint64_t sequence;
@@ -25,8 +31,8 @@ typedef struct __attribute__((__packed__))
 
 typedef struct __attribute__((__packed__))
 {
-	uint8_t hash_key[CMD_HASH_SIZE];
-	uint8_t hash_msg[CMD_HASH_SIZE];
+	hash_t hash_key;
+	hash_t hash_msg;
 	uint8_t sig_part[CMD_BLOCK_SIZE / 2];
 } cmd_signature_t;
 
@@ -51,12 +57,6 @@ typedef enum
 	TIME = 0x01,
 	TEST = 0x02,
 } command_type_t;
-
-typedef uint8_t hash_t[CMD_HASH_SIZE];
-typedef uint8_t signature_t[CMD_BLOCK_SIZE];
-
-static_assert(sizeof(hash_t) == CMD_HASH_SIZE, "hash_t size");
-static_assert(sizeof(signature_t) == CMD_BLOCK_SIZE, "signature_t size");
 
 typedef struct
 {
