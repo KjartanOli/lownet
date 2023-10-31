@@ -114,7 +114,7 @@ int hash(const char* data, size_t length, hash_t* hash)
 // Pre:   A != NULL, B != NULL
 //        A and B are buffers of size SIZE
 // Value: true if A and B are equal, false otherwise
-bool compare_buffers(const uint8_t* a, const uint8_t* b, uint8_t size)
+bool compare_buffers(const uint8_t* a, const uint8_t* b, size_t size)
 {
 	return memcmp(a, b, size) == 0;
 }
@@ -125,6 +125,14 @@ bool compare_buffers(const uint8_t* a, const uint8_t* b, uint8_t size)
 bool compare_hashes(const hash_t* a, const hash_t* b)
 {
 	return compare_buffers((const uint8_t*) a, (const uint8_t*) b, sizeof(hash_t));
+}
+
+// Usage: compare_signatures(A, B)
+// Pre:   A != NULL, B != NULL
+// Value: true if A and B are equal, false otherwise
+bool compare_signatures(const signature_t* a, const signature_t* b)
+{
+	return compare_buffers((const uint8_t*) a, (const uint8_t*) b, sizeof(signature_t));
 }
 
 // Usage: compare_hash(HASH)
@@ -180,7 +188,7 @@ bool verify_signature(const public_key_t* key)
 	memset(expected + 220, 1, 4);
 	memcpy(expected + 220 + 4, state.hash, sizeof(hash_t));
 
-	return memcmp(expected, signature, sizeof(signature_t)) == 0;
+	return compare_signatures(&signature, &expected);
 }
 
 // Usage: command_time_cmd(TIME)
