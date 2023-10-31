@@ -95,6 +95,14 @@ void command_ready_next()
 	memset(&state.signature, 0, sizeof(signature_t));
 }
 
+// Usage: compare_hashes(A, B)
+// Pre:   A != NULL, B != NULL
+// Value: true if A and B are equal, false otherwise
+bool compare_hashes(const hash_t* a, const hash_t* b)
+{
+	return memcmp(a, b, sizeof(hash_t)) == 0;
+}
+
 // Usage: compare_hash(HASH)
 // Pre:   HASH is a buffer of size CMD_HASH_SIZE
 // Value: true if HASH is equal to the hash of the frame currently
@@ -268,7 +276,7 @@ void handle_signature_frame(const lownet_frame_t* frame)
 
 	// If the msg hash does not match the current command this is a
 	// signature for a different command.  Discard it.
-	if (!compare_hash(signature->hash_msg))
+	if (!compare_hashes(&signature->hash_msg, &state.hash))
 		return;
 
 	lownet_time_t now = lownet_get_time();
