@@ -58,6 +58,12 @@ typedef uint8_t signature_t[CMD_BLOCK_SIZE];
 static_assert(sizeof(hash_t) == CMD_HASH_SIZE, "hash_t size");
 static_assert(sizeof(signature_t) == CMD_BLOCK_SIZE, "signature_t size");
 
+typedef struct
+{
+	mbedtls_pk_context key;
+	hash_t hash;
+} public_key_t;
+
 struct {
 	state_t state;
 	uint64_t last_valid;
@@ -97,6 +103,29 @@ void command_ready_next()
 bool compare_hash(const hash_t hash)
 {
 	return memcmp(hash, &state.hash, sizeof(hash_t)) == 0;
+}
+
+// Usage: public_key_init(PEM, KEY)
+// Pre:   PEM is a pem encoded public key
+//        KEY != NULL
+// Post:  KEY has been initialised
+// Value: 0 if KEY was successfully initialised, non-0 otherwise
+int public_key_init(const char* pem, public_key_t* key)
+{
+	mbedtls_pk_init(&key->key);
+	size_t length = strlen(pem);
+
+	int status = mbedtls_pk_parse_public_key(&key->key,
+																					 (const unsigned char*) pem,
+																					 length + 1);
+	if (status)
+		return status;
+
+	status = mbedtls_sha256((const unsigned char*) pem,
+													length,
+													(unsigned char*) &key->hash,
+													0);
+	return status;
 }
 
 void command_init()
