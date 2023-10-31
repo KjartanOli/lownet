@@ -135,13 +135,14 @@ void command_init()
 	public_key_init(lownet_get_signing_key(), &state.key);
 }
 
-// Usage: verify_signature()
+// Usage: verify_signature(KEY)
 // Pre:   A full signature has been received
+//        KEY has been initialised by public_key_init
 // Value: true if the received signature matches the current command
-bool verify_signature()
+bool verify_signature(const public_key_t* key)
 {
 	signature_t signature;
-	mbedtls_rsa_public(mbedtls_pk_rsa(state.pk),
+	mbedtls_rsa_public(mbedtls_pk_rsa(key->key),
 										 state.signature,
 										 signature);
 
@@ -196,7 +197,7 @@ void command_execute(const lownet_frame_t* frame)
 //       and if correct the command has been executed
 void signature_received()
 {
-	if (!verify_signature())
+	if (!verify_signature(&state.key))
 		{
 			// Invalid signature, discard the command.
 			command_ready_next();
