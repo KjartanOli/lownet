@@ -95,6 +95,21 @@ void command_ready_next()
 	memset(&state.signature, 0, sizeof(signature_t));
 }
 
+// Usage: hash(DATA, LENGTH, HASH)
+// Pre:   DATA != NULL, HASH != NULL
+//        DATA is a buffer of length LENGTH
+// Post:  HASH contains the hash of DATA
+// Value: 0 if hashing succeeded, non-0 otherwise
+// Note: For the meaning of non-0 return values consult the
+//       documentation of mbedtls_sha256
+int hash(const char* data, size_t length, hash_t* hash)
+{
+	return mbedtls_sha256((const unsigned char*) data,
+												length,
+												(unsigned char*) hash,
+												0);
+}
+
 // Usage: compare_hashes(A, B)
 // Pre:   A != NULL, B != NULL
 // Value: true if A and B are equal, false otherwise
@@ -128,10 +143,7 @@ int public_key_init(const char* pem, public_key_t* key)
 	if (status)
 		return status;
 
-	status = mbedtls_sha256((const unsigned char*) pem,
-													length,
-													(unsigned char*) &key->hash,
-													0);
+	status = hash(pem, length, &key->hash);
 	return status;
 }
 
