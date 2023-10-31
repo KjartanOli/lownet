@@ -71,8 +71,7 @@ struct {
 	lownet_frame_t current_cmd;
 	hash_t hash;
 	signature_t signature;
-	mbedtls_pk_context pk;
-	hash_t keyhash;
+	public_key_t key;
 } state;
 
 // Usage: get_frame_type(FRAME)
@@ -132,15 +131,8 @@ void command_init()
 {
 	command_ready_next();
 	state.last_valid = 0;
-	mbedtls_pk_init(&state.pk);
 
-	if (mbedtls_pk_parse_public_key(&state.pk,
-																	(const unsigned char*) lownet_get_signing_key(),
-																	strlen(lownet_get_signing_key()) + 1))
-		serial_write_line("failed to init public key");
-
-	if (mbedtls_sha256((const unsigned char*) lownet_get_signing_key(), strlen(lownet_get_signing_key()), state.keyhash, 0))
-		serial_write_line("failed to hash public key");
+	public_key_init(lownet_get_signing_key(), &state.key);
 }
 
 // Usage: verify_signature()
@@ -287,7 +279,7 @@ void handle_signature_frame(const lownet_frame_t* frame)
 			return;
 		}
 
-	if (memcmp(state.keyhash, signature->hash_key, sizeof(hash_t)) != 0)
+	if (memcmp(state.key.hash, signature->hash_key, sizeof(hash_t)) != 0)
 			return;
 
 	switch (type)
