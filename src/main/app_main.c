@@ -85,15 +85,6 @@ void app_main(void)
 	char msg_in[MSG_BUFFER_LENGTH];
 	char msg_out[MSG_BUFFER_LENGTH];
 
-	// Generate 32 bytes of noise up front and dump the HEX out.  No explicit purpose except
-	//	convenience if you want an arbitrary 32 bytes.
-	uint32_t rand = esp_random();
-	uint32_t key_buffer[8];
-	for (int i = 0; i < 8; ++i) {
-		key_buffer[i] = esp_random();
-	}
-	ESP_LOG_BUFFER_HEX("Hex", key_buffer, 32);
-
 	// Initialize the serial services.
 	init_serial_service();
 
