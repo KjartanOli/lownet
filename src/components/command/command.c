@@ -155,14 +155,6 @@ int public_key_init(const char* pem, public_key_t* key)
 	return status;
 }
 
-void command_init()
-{
-	command_ready_next();
-	state.last_valid = 0;
-
-	public_key_init(lownet_get_signing_key(), &state.key);
-}
-
 // Usage: verify_signature(KEY)
 // Pre:   A full signature has been received
 //        KEY has been initialised by public_key_init
@@ -321,6 +313,14 @@ void handle_signature_frame(const lownet_frame_t* frame)
 		default:
 			return;
 		}
+}
+
+void command_init()
+{
+	command_ready_next();
+	state.last_valid = 0;
+
+	public_key_init(lownet_get_signing_key(), &state.key);
 }
 
 void command_receive(const lownet_frame_t* frame)
