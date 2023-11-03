@@ -12,13 +12,12 @@
 #include <mbedtls/rsa.h>
 #include <mbedtls/pk.h>
 
-#define CMD_HASH_SIZE 32
+#include "hash.h"
+
 #define CMD_BLOCK_SIZE 256
 
-typedef uint8_t hash_t[CMD_HASH_SIZE];
 typedef uint8_t signature_t[CMD_BLOCK_SIZE];
 
-static_assert(sizeof(hash_t) == CMD_HASH_SIZE, "hash_t size");
 static_assert(sizeof(signature_t) == CMD_BLOCK_SIZE, "signature_t size");
 
 typedef struct __attribute__((__packed__))
@@ -93,30 +92,6 @@ void command_ready_next()
 	memset(&state.command_received, 0, sizeof(lownet_time_t));
 	memset(&state.hash, 0, sizeof(hash_t));
 	memset(&state.signature, 0, sizeof(signature_t));
-}
-
-// Usage: hash(DATA, LENGTH, HASH)
-// Pre:   DATA != NULL, HASH != NULL
-//        DATA is a buffer of length LENGTH
-// Post:  HASH contains the hash of DATA
-// Value: 0 if hashing succeeded, non-0 otherwise
-// Note: For the meaning of non-0 return values consult the
-//       documentation of mbedtls_sha256
-int hash(const char* data, size_t length, hash_t* hash)
-{
-	return mbedtls_sha256((const unsigned char*) data,
-												length,
-												(unsigned char*) hash,
-												0);
-}
-
-
-// Usage: compare_hashes(A, B)
-// Pre:   A != NULL, B != NULL
-// Value: true if A and B are equal, false otherwise
-bool compare_hashes(const hash_t* a, const hash_t* b)
-{
-	return buffers_equal((const uint8_t*) a, (const uint8_t*) b, sizeof(hash_t));
 }
 
 // Usage: compare_signatures(A, B)
@@ -280,7 +255,7 @@ void handle_signature_frame(const lownet_frame_t* frame)
 
 	// If the msg hash does not match the current command this is a
 	// signature for a different command.  Discard it.
-	if (!compare_hashes(&signature->hash_msg, &state.hash))
+	if (!hash_equal(&signature->hash_msg, &state.hash))
 		return;
 
 	lownet_time_t now = lownet_get_time();
