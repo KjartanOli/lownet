@@ -110,21 +110,13 @@ int hash(const char* data, size_t length, hash_t* hash)
 												0);
 }
 
-// Usage: compare_buffers(A, B, SIZE)
-// Pre:   A != NULL, B != NULL
-//        A and B are buffers of size SIZE
-// Value: true if A and B are equal, false otherwise
-bool compare_buffers(const uint8_t* a, const uint8_t* b, size_t size)
-{
-	return memcmp(a, b, size) == 0;
-}
 
 // Usage: compare_hashes(A, B)
 // Pre:   A != NULL, B != NULL
 // Value: true if A and B are equal, false otherwise
 bool compare_hashes(const hash_t* a, const hash_t* b)
 {
-	return compare_buffers((const uint8_t*) a, (const uint8_t*) b, sizeof(hash_t));
+	return buffers_equal((const uint8_t*) a, (const uint8_t*) b, sizeof(hash_t));
 }
 
 // Usage: compare_signatures(A, B)
@@ -132,7 +124,7 @@ bool compare_hashes(const hash_t* a, const hash_t* b)
 // Value: true if A and B are equal, false otherwise
 bool compare_signatures(const signature_t* a, const signature_t* b)
 {
-	return compare_buffers((const uint8_t*) a, (const uint8_t*) b, sizeof(signature_t));
+	return buffers_equal((const uint8_t*) a, (const uint8_t*) b, sizeof(signature_t));
 }
 
 // Usage: public_key_init(PEM, KEY)

@@ -1,6 +1,8 @@
 #ifndef GUARD_UTILITY_H
 #define GUARD_UTILITY_H
 
+#include <stdbool.h>
+
 #include "lownet.h"
 
 int util_printable(char c);
@@ -34,6 +36,20 @@ int compare_time(const lownet_time_t* lhs, const lownet_time_t* rhs);
 //        B must be greater than A as defined by compare_time(A, B).
 // Value: The difference between A and B
 lownet_time_t time_diff(const lownet_time_t* a, const lownet_time_t* b);
+
+// Usage: buffers_compare(A, B, SIZE)
+// Pre:   A != NULL, B != NULL
+//        A and B are buffers of size SIZE
+// Value: -1 if A is less than B,
+//         0 if A and B are equal,
+//         1 if A is greater than B
+int buffers_compare(const uint8_t* a, const uint8_t* b, size_t size);
+
+// Usage: buffers_equal(A, B, SIZE)
+// Pre:   A != NULL, B != NULL
+//        A and B are buffers of size SIZE
+// Value: true if A and B are equal, false otherwise
+bool buffers_equal(const uint8_t* a, const uint8_t* b, size_t size);
 
 // uint32 + '.' + uint32 + 's'
 #define TIME_WIDTH (11 + 1 + 11 + 1)

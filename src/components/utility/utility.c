@@ -82,3 +82,13 @@ int format_id(char* buffer, uint8_t id)
 {
 	return sprintf(buffer, "0x%x", id);
 }
+
+int buffers_compare(const uint8_t* a, const uint8_t* b, size_t size)
+{
+	return memcmp(a, b, size);
+}
+
+bool buffers_equal(const uint8_t* a, const uint8_t* b, size_t size)
+{
+	return buffers_compare(a, b, size) == 0;
+}
