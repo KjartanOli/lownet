@@ -13,12 +13,7 @@
 #include <mbedtls/pk.h>
 
 #include "hash.h"
-
-#define CMD_BLOCK_SIZE 256
-
-typedef uint8_t signature_t[CMD_BLOCK_SIZE];
-
-static_assert(sizeof(signature_t) == CMD_BLOCK_SIZE, "signature_t size");
+#include "signature.h"
 
 typedef struct __attribute__((__packed__))
 {
@@ -94,14 +89,6 @@ void command_ready_next()
 	memset(&state.signature, 0, sizeof(signature_t));
 }
 
-// Usage: compare_signatures(A, B)
-// Pre:   A != NULL, B != NULL
-// Value: true if A and B are equal, false otherwise
-bool compare_signatures(const signature_t* a, const signature_t* b)
-{
-	return buffers_equal((const uint8_t*) a, (const uint8_t*) b, sizeof(signature_t));
-}
-
 // Usage: public_key_init(PEM, KEY)
 // Pre:   PEM is a pem encoded public key
 //        KEY != NULL
@@ -138,7 +125,7 @@ bool verify_signature(const public_key_t* key)
 	memset(expected + 220, 1, 4);
 	memcpy(expected + 220 + 4, state.hash, sizeof(hash_t));
 
-	return compare_signatures(&signature, &expected);
+	return signature_equal(&signature, &expected);
 }
 
 // Usage: command_time_cmd(TIME)
