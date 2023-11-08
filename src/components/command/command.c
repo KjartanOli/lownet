@@ -144,7 +144,12 @@ void command_time_cmd(const lownet_time_t* time)
 void command_test_cmd(const lownet_frame_t* frame)
 {
 	const cmd_packet_t* command = (const cmd_packet_t*) &frame->payload;
-	ping(frame->source, command->contents, 180);
+	// The true payload of a test command is stored in the contents
+	// field, to determine its size we need to subtract the size of the
+	// other fields in cmd_packet_t from the length of the frame's
+	// payload.
+	const uint8_t payload_length = frame->length - (sizeof(cmd_packet_t) - sizeof(((cmd_packet_t*)0)->contents));
+	ping(frame->source, command->contents, payload_length);
 }
 
 // Usage: command_execute(COMMAND)
