@@ -274,7 +274,7 @@ int main(int argc, char** argv)
 	/*
 	 * Test the game by playing up to 10 rounds
 	 */
-	while (!(res = tictac_game_over(&b)) && round < 10)
+	while (!(res = tictac_game_over(&b)))
 		{
 			/* check that encoding/decoding to packet format works */
 			if (tictac_encode(&b, &payload))
