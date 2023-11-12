@@ -224,6 +224,7 @@ int tictac_auto(const tictactoe_t* b, int* x, int* y, uint8_t s)
 /***********************************************************/
 
 #ifdef STANDALONE
+#include "tictac_node.c" // This is ugly as sin, but it works for now.
 
 void print_board(const tictactoe_t* b)
 {
@@ -292,7 +293,8 @@ int main(int argc, char** argv)
 			if (!(round & 1))
 				{
 					print_board(&b);
-					ask_move(&b, 1);
+					tictac_move(&b, &x, &y, 1, 3);
+					tictac_set(&b, x, y, 1);
 				}
 			else if (!tictac_auto(&b, &x, &y, 2) &&
 							 !tictac_set(&b, x, y, 2))
