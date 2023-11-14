@@ -165,7 +165,7 @@ int my_random(void)
  * Simple heuristic for our end.
  * Returns zero on a successful choice
  */
-int tictac_auto(const tictactoe_t* b, int* x, int* y, uint8_t s)
+int tictac_auto(const tictactoe_board_t board, int* x, int* y, uint8_t s)
 {
 	int best_v = -1;
 	int best_i = 0;
@@ -178,18 +178,18 @@ int tictac_auto(const tictactoe_t* b, int* x, int* y, uint8_t s)
 		{
 			for(int j = 0; j < TICTACTOE_BOARD; ++j)
 				{
-					if (tictac_get(b, i, j))
+					if (tictac_get(board, i, j))
 						{
 							markers++;
 							continue;
 						}
 					int v = 0; // value of this action
-					if (i > 0 && tictac_get(b, i - 1, j)) v++;
-					if (j > 0 && tictac_get(b, i, j - 1)) v++;
-					if (i > 0 && j>0 && tictac_get(b, i - 1, j - 1)) v++;
-					if (i < m && tictac_get(b, i + 1, j)) v++;
-					if (j < m && tictac_get(b, i, j + 1)) v++;
-					if (i < m && j < m && tictac_get(b, i + 1, j + 1)) v++;
+					if (i > 0 && tictac_get(board, i - 1, j)) v++;
+					if (j > 0 && tictac_get(board, i, j - 1)) v++;
+					if (i > 0 && j>0 && tictac_get(board, i - 1, j - 1)) v++;
+					if (i < m && tictac_get(board, i + 1, j)) v++;
+					if (j < m && tictac_get(board, i, j + 1)) v++;
+					if (i < m && j < m && tictac_get(board, i + 1, j + 1)) v++;
 
 					if (v < best_v)
 						continue;
