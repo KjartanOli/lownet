@@ -83,18 +83,20 @@ int tictac_decode(const tictactoe_payload_t* p, tictactoe_t* b)
  * set_board() sets piece s to (i,j), return zero on success.
  *
  */
-uint8_t tictac_get(const tictactoe_t* b, int i, int j)
+square_value_t tictac_get(const tictactoe_board_t board, uint8_t i, uint8_t j)
 {
-	return b->board[i + TICTACTOE_BOARD * j];
+	uint8_t idx = (i + TICTACTOE_BOARD * j) / 4;
+	uint8_t sqr = (i + TICTACTOE_BOARD * j) % 4;
+	return get_square(board[idx], sqr);
 }
 
-
-int tictac_set(tictactoe_t* b, int i, int j, uint8_t s)
+int tictac_set(tictactoe_board_t board, uint8_t i, uint8_t j, square_value_t s)
 {
-	int pos = i + TICTACTOE_BOARD * j;
-	if (b->board[pos]) // already taken
+	if (tictac_base2_get(board, i, j))
 		return -1;
-	b->board[pos] = s;
+	uint8_t idx = (i + TICTACTOE_BOARD * j) / 4;
+	uint8_t sqr = (i + TICTACTOE_BOARD * j) % 4;
+	board[idx] = set_square(board[idx], sqr, s);
 	return 0;
 }
 
