@@ -6,6 +6,18 @@
 #define TICTACTOE_N2 225 // data size with 4 squares-per-byte
 #define TICTACTOE_N3 180 // data size with 5 squares-per-byte (=30^2/5)
 
+/*
+ * Data invariant:
+ *
+ * A board is stored in memory as an array of (TICTACTOE_N2 = 225)
+ * bytes, each byte stores 4 squares of the board, with 2 bits per
+ * square.
+ *
+ * Each byte is laid out as follows:
+ * 00|00|00|00
+ *  ^  ^  ^  ^
+ *  0  1  2  3
+ */
 typedef uint8_t tictactoe_board_t[TICTACTOE_N2];
 
 typedef enum
