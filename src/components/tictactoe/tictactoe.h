@@ -6,6 +6,15 @@
 #define TICTACTOE_N2 225 // data size with 4 squares-per-byte
 #define TICTACTOE_N3 180 // data size with 5 squares-per-byte (=30^2/5)
 
+typedef uint8_t tictactoe_board_t[TICTACTOE_N2];
+
+typedef enum
+{
+	EMPTY = 0b00,
+	PLAYER1 = 0b01,
+	PLAYER2 = 0b10,
+} square_value_t;
+
 /*
  * Internal representation, one square per byte
  * 0=empty, 1=cross, 2=circle

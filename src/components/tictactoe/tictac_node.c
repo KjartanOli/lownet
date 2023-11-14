@@ -45,15 +45,6 @@ static const uint8_t MASKS[] = {
 
 static const uint8_t SHIFTS[] = {6, 4, 2, 0};
 
-typedef uint8_t tictactoe_board_t[TICTACTOE_N2];
-
-typedef enum
-{
-	EMPTY = 0b00,
-	PLAYER1 = 0b01,
-	PLAYER2 = 0b10,
-} square_value_t;
-
 // Usage: get_square(SQUARES, IDX)
 // Pre:   0 <= IDX < 4
 // Value: The value of square IDX within SQUARES
