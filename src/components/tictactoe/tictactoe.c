@@ -242,28 +242,6 @@ void print_board(const tictactoe_board_t board)
 		}
 }
 
-void ask_move(tictactoe_t* b, uint8_t s)
-{
-	while(1)
-		{
-			int i, j;
-
-			printf("Give your move (e.g., 3,4)\n");
-			if (scanf("%d,%d", &i, &j) == 2 &&
-					i >= 1 && i <= TICTACTOE_BOARD &&
-					j >= 1 && j <= TICTACTOE_BOARD)
-				{
-					i = i - 1;
-					j = j - 1;
-					if (!tictac_set(b, i, j, s))
-						return;
-					printf("Square is already marked - try again\n");
-				}
-			else
-				printf("Illegal input - try again\n");
-		}
-}
-
 int main(int argc, char** argv)
 {
 	tictactoe_payload_t payload;
