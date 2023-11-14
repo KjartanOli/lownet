@@ -84,6 +84,24 @@ void tictac_base2_encode(const tictactoe_t* board, tictactoe_board_t buffer)
 									 + set_square(0, 3, board->board[i+3]));
 		}
 }
+
+square_value_t tictac_base2_get(const tictactoe_board_t board, uint8_t i, uint8_t j)
+{
+	uint8_t idx = (i + TICTACTOE_BOARD * j) / 4;
+	uint8_t sqr = (i + TICTACTOE_BOARD * j) % 4;
+	return get_square(board[idx], sqr);
+}
+
+int tictac_base2_set(tictactoe_board_t board, uint8_t i, uint8_t j, square_value_t s)
+{
+	if (tictac_base2_get(board, i, j))
+		return -1;
+	uint8_t idx = (i + TICTACTOE_BOARD * j) / 4;
+	uint8_t sqr = (i + TICTACTOE_BOARD * j) % 4;
+	board[idx] = set_square(board[idx], sqr, s);
+	return 0;
+}
+
 		}
 }
 
