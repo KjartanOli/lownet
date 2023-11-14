@@ -1,10 +1,18 @@
 #ifndef TICTACTOE_H
 #define TICTACTOE_H
 
+#include <assert.h>
+
 #define TICTACTOE_BOARD 30 // one side of the board
 #define TICTACTOE_N (30*30) // number of squares
 #define TICTACTOE_N2 225 // data size with 4 squares-per-byte
 #define TICTACTOE_N3 180 // data size with 5 squares-per-byte (=30^2/5)
+
+#define TICTAC_B2_SQUARES_PER_BYTE (TICTACTOE_N / TICTACTOE_N2)
+#define TICTAC_B3_SQUARES_PER_BYTE (TICTACTOE_N / TICTACTOE_N3)
+
+static_assert(TICTAC_B2_SQUARES_PER_BYTE == 4);
+static_assert(TICTAC_B3_SQUARES_PER_BYTE == 5);
 
 /*
  * Data invariant:
@@ -26,15 +34,6 @@ typedef enum
 	PLAYER1 = 0b01,
 	PLAYER2 = 0b10,
 } square_value_t;
-
-/*
- * Internal representation, one square per byte
- * 0=empty, 1=cross, 2=circle
- */
-typedef struct
-{
-	uint8_t board[TICTACTOE_N + 100];
-} tictactoe_t;
 
 /*
  * Compact representation for data packets

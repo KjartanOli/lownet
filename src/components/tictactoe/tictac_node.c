@@ -61,19 +61,46 @@ uint8_t set_square(uint8_t squares, uint8_t idx, square_value_t value)
 	return (squares & (~MASKS[idx])) + (value << SHIFTS[idx]);
 }
 
-// Usage: tictac_base2_encode(BOARD, BUFFER)
-// Pre:   BOARD != NULL, BUFFER != NULL
-//        BUFFER is of length TICTACTOE_N2
-// Post:  The base-2 encoding of BOARD has been written to BUFFER
-void tictac_base2_encode(const tictactoe_t* board, tictactoe_board_t buffer)
+// Usage: base2_encode_squares(SQUARES)
+// Pre:   SQUARES != NULL, SQUARES is of length 4
+// Value: The base-2 encoding of of SQUARES
+uint8_t base2_encode_squares(const uint8_t* squares)
 {
-	for (size_t i = 0, j = 0; i < TICTACTOE_N; i += 4, ++j)
-		{
-			buffer[j] = (set_square(0, 0, board->board[i])
-									 + set_square(0, 1, board->board[i+1])
-									 + set_square(0, 2, board->board[i+2])
-									 + set_square(0, 3, board->board[i+3]));
-		}
+	uint8_t r = 0;
+	for (size_t i = 0; i < 4; ++i)
+		r = set_square(r, i, squares[i]);
+
+	return r;
+}
+
+// Usage: base2_decode_squares(SQUARES, BUFFER)
+// Pre:   BUFFER != NULL, BUFFER is of length 4
+// Post:  The squares encoded in SQUARES have been decoded into BUFFER
+void base2_decode_squares(uint8_t squares, uint8_t* buffer)
+{
+	for (size_t i = 0; i < 4; ++i)
+		buffer[i] = get_square(squares, i);
+}
+
+// Usage: base3_encode_squares(SQUARES)
+// Pre:   SQUARES != NULL, SQUARES is of length 5
+// Value: The base-3 encoding of of SQUARES
+uint8_t base3_encode_squares(const uint8_t* squares)
+{
+	uint8_t v = 0;
+	for (size_t i = 0, B = 1; i < 5; ++i, B *= 3)
+			v += squares[i] * B;
+
+	return v;
+}
+
+// Usage: base3_decode_squares(SQUARES, BUFFER)
+// Pre:   BUFFER != NULL, BUFFER is of length 5
+// Post:  The squares encoded in SQUARES have been decoded into BUFFER
+void base3_decode_squares(uint8_t squares, uint8_t* buffer)
+{
+	for (size_t i = 0, B = squares; i < 5; ++i, B /= 3)
+		buffer[i] = B % 3;
 }
 
 square_value_t tictac_base2_get(const tictactoe_board_t board, uint8_t i, uint8_t j)
@@ -107,37 +134,10 @@ void print_board_base2(const tictactoe_board_t b)
 		}
 }
 
-// Usage: tictac_base2_decode(BUFFER, BOARD)
-// Pre:   BUFFER != NULL, BOARD != NULL
-//        BUFFER is a base-2 representation of a game board
-// Post:  BUFFER has been decoded into BOARD
-void tictac_base2_decode(const tictactoe_board_t buffer, tictactoe_t* board)
+uint32_t tictac_checksum(const tictactoe_board_t board)
 {
-	for (size_t i = 0, j = 0; i < TICTACTOE_N; i += 4, ++j)
-		{
-			uint8_t squares = buffer[j];
-			uint8_t tmp[] = {
-				get_square(squares, 0),
-				get_square(squares, 1),
-				get_square(squares, 2),
-				get_square(squares, 3),
-			};
-
-			memcpy(board->board + i, tmp, 4);
-		}
-}
-
-uint32_t tictac_checksum(const tictactoe_t* b)
-{
-	uint8_t b4[TICTACTOE_N2]; // work here
-
-	/* Init the memory chunk */
-	memset(b4, 0, TICTACTOE_N2); // clear all?
-
-	tictac_base2_encode(b, b4);
-
 	/* Then compute the CRC code */
-	return crc24(b4, TICTACTOE_N2 );
+	return crc24(board, sizeof(tictactoe_board_t));
 }
 
 /*

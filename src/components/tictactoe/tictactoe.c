@@ -19,37 +19,49 @@
  * Oct 29, 2023 -- esa@hi.is
  */
 
-/*
- * Encode the sparse memory representation to packet payload
- * using 1 byte per 5 squares.
- */
 int tictac_encode(const tictactoe_board_t board, tictactoe_payload_t* p)
 {
-	tictactoe_t b;
-	tictac_base2_decode(board, &b);
-
-	uint8_t B = 1; // B = 1, 3, 9, 27, 81, 1, ...
-	uint8_t v = 0;
-	int j = 0;
-
-	for(int i = 0; i < TICTACTOE_N; ++i)
+	/*
+	 * Loop invariant:
+	 *
+	 * 0 <= i < TICTACTOE_N2
+	 * 0 <= j < TICTACTOE_N3
+	 *
+	 * The base-2 encoded squares in board[..i) have been re-encoded
+	 * into base-3 in p->bdata[..j)
+	 */
+	size_t i = 0, j = 0;
+	while (i < TICTACTOE_N2)
 		{
-			v += b.board[i] * B;
-			if (B >= 81)
-				{
-					p->bdata[j++] = v;
-					B = 1;
-					v = 0;
-				}
-			else
-				B *= 3;
+			// ghost old_i = i
+			// ghost old_j = j
+			uint8_t buffer[TICTAC_B2_SQUARES_PER_BYTE * TICTAC_B3_SQUARES_PER_BYTE];
+			static_assert(sizeof(buffer) == 20);
+
+			/*
+			 * Loop invariant:
+			 *
+			 * 0 <= z < sizeof(buffer)
+			 *
+			 * The squares encoded in board[old_i..i) have been decoded into
+			 * buffer[..z)
+			 */
+			for (size_t z = 0; z < sizeof(buffer); z += TICTAC_B2_SQUARES_PER_BYTE, ++i)
+				base2_decode_squares(board[i], buffer + z);
+
+			/*
+			 * Loop invariant:
+			 *
+			 * 0 <= z < sizeof(buffer)
+			 *
+			 * The squares stored in buffer[..z) have been encoded into
+			 * p->bdata[..j)
+			 */
+			for (size_t z = 0; z < sizeof(buffer); z += TICTAC_B3_SQUARES_PER_BYTE, ++j)
+				p->bdata[j] = base3_encode_squares(buffer + z);
 		}
-	if (j != TICTACTOE_N3 || B!=1)
-		{
-			printf("Oops, board encoding failed\n");
-			return -1;
-		}
-	return 0;
+
+	return (i == TICTACTOE_N2 && j == TICTACTOE_N3) ? 0 : -1;
 }
 
 /*
@@ -58,33 +70,47 @@ int tictac_encode(const tictactoe_board_t board, tictactoe_payload_t* p)
  */
 int tictac_decode(const tictactoe_payload_t* p, tictactoe_board_t board)
 {
-	tictactoe_t b;
-	memset(&b, 0, sizeof(tictactoe_t));
-
-	uint8_t B,v;
-	int k = 0;
-	int err = 0;
-
-	for(int i = 0; i < TICTACTOE_N3; ++i)
+	/*
+	 * Loop invariant:
+	 *
+	 * 0 <= i < TICTACTOE_N3
+	 * 0 <= j < TICTACTOE_N2
+	 *
+	 * The base-3 encoded squares in p->bdata[..i) have been re-encoded
+	 * into base-2 in board[..j)
+	 */
+	size_t i = 0, j = 0;
+	while (i < TICTACTOE_N3)
 		{
-			B = p->bdata[i];
-			for(int j=0; j < 5; ++j)
-				{
-					v = B % 3;
-					B = B / 3;
-					b.board[k++] = v;
-				}
-			if (B)
-				err++;
-		}
-	if (k != TICTACTOE_N || err)
-		{
-			printf("Oops, board decoding failed\n");
-			return -1;
+			// ghost old_i = i
+			// ghost old_j = j
+			uint8_t buffer[TICTAC_B2_SQUARES_PER_BYTE * TICTAC_B3_SQUARES_PER_BYTE];
+			static_assert(sizeof(buffer) == 20);
+
+			/*
+			 * Loop invariant:
+			 *
+			 * 0 <= z < sizeof(buffer)
+			 *
+			 * The squares encoded in p->bdata[old_i..i) have been decoded
+			 * into buffer[..z)
+			 */
+			for (size_t z = 0; z < sizeof(buffer); z += TICTAC_B3_SQUARES_PER_BYTE, ++i)
+				base3_decode_squares(p->bdata[i], buffer + z);
+
+			/*
+			 * Loop invariant:
+			 *
+			 * 0 <= z < sizeof(buffer)
+			 *
+			 * The squares stored in buffer[..z) have been encoded into
+			 * board[old_j..j)
+			 */
+			for (size_t z = 0; z < sizeof(buffer); z += TICTAC_B2_SQUARES_PER_BYTE, ++j)
+				board[j] = base2_encode_squares(buffer + z);
 		}
 
-	tictac_base2_encode(&b, board);
-	return 0;
+	return (i == TICTACTOE_N3 && j == TICTACTOE_N2) ? 0 : -1;
 }
 
 
