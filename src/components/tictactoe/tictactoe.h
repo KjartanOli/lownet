@@ -34,8 +34,8 @@ typedef struct __attribute__((__packed__))
 } tictactoe_payload_t;
 
 
-int tictac_encode(const tictactoe_t* b, tictactoe_payload_t* p);
-int tictac_decode(const tictactoe_payload_t* p, tictactoe_t* b);
+int tictac_encode(const tictactoe_board_t board, tictactoe_payload_t* p);
+int tictac_decode(const tictactoe_payload_t* p, tictactoe_board_t board);
 
 int tictac_game_over(const tictactoe_board_t board);
 int tictac_auto(const tictactoe_board_t b, int* x, int* y, uint8_t s);

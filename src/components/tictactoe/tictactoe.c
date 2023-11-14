@@ -19,15 +19,18 @@
  * Encode the sparse memory representation to packet payload
  * using 1 byte per 5 squares.
  */
-int tictac_encode(const tictactoe_t* b, tictactoe_payload_t* p)
+int tictac_encode(const tictactoe_board_t board, tictactoe_payload_t* p)
 {
+	tictactoe_t b;
+	tictac_base2_decode(board, &b);
+
 	uint8_t B = 1; // B = 1, 3, 9, 27, 81, 1, ...
 	uint8_t v = 0;
 	int j = 0;
 
 	for(int i = 0; i < TICTACTOE_N; ++i)
 		{
-			v += b->board[i] * B;
+			v += b.board[i] * B;
 			if (B >= 81)
 				{
 					p->bdata[j++] = v;
@@ -49,8 +52,11 @@ int tictac_encode(const tictactoe_t* b, tictactoe_payload_t* p)
  * Decode the dense packet representation back to the
  * internal representation in memory that is fast to work with
  */
-int tictac_decode(const tictactoe_payload_t* p, tictactoe_t* b)
+int tictac_decode(const tictactoe_payload_t* p, tictactoe_board_t board)
 {
+	tictactoe_t b;
+	memset(&b, 0, sizeof(tictactoe_t));
+
 	uint8_t B,v;
 	int k = 0;
 	int err = 0;
@@ -62,7 +68,7 @@ int tictac_decode(const tictactoe_payload_t* p, tictactoe_t* b)
 				{
 					v = B % 3;
 					B = B / 3;
-					b->board[k++] = v;
+					b.board[k++] = v;
 				}
 			if (B)
 				err++;
@@ -72,6 +78,8 @@ int tictac_decode(const tictactoe_payload_t* p, tictactoe_t* b)
 			printf("Oops, board decoding failed\n");
 			return -1;
 		}
+
+	tictac_base2_encode(&b, board);
 	return 0;
 }
 
