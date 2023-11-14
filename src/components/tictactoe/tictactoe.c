@@ -226,20 +226,19 @@ int tictac_auto(const tictactoe_t* b, int* x, int* y, uint8_t s)
 #ifdef STANDALONE
 #include "tictac_node.c" // This is ugly as sin, but it works for now.
 
-void print_board(const tictactoe_t* b)
+void print_board(const tictactoe_board_t board)
 {
 	for(int i = 0; i < TICTACTOE_BOARD; ++i)
 		{
 			printf("%02d: ", i + 1);
 			for(int j = 0; j < TICTACTOE_BOARD; ++j)
 				{
-					uint8_t s = tictac_get(b, i, j);
-					printf("%c", (s == 0 ? '_' : (s == 1 ? 'x' : 'o')));
+					square_value_t s = tictac_get(board, i, j);
+					printf("%c", (s == EMPTY ? '_' : (s == PLAYER1 ? 'x' : 'o')));
 				}
-			printf("\n");
+			putc('\n', stdout);
 		}
 }
-
 
 void ask_move(tictactoe_t* b, uint8_t s)
 {
