@@ -102,6 +102,17 @@ int tictac_base2_set(tictactoe_board_t board, uint8_t i, uint8_t j, square_value
 	return 0;
 }
 
+void print_board_base2(const tictactoe_board_t b)
+{
+	for(int i = 0; i < TICTACTOE_BOARD; ++i)
+		{
+			printf("%02d: ", i + 1);
+			for(int j = 0; j < TICTACTOE_BOARD; ++j)
+				{
+					square_value_t s = tictac_base2_get(b, i, j);
+					printf("%c", (s == EMPTY ? '_' : (s == PLAYER1 ? 'x' : 'o')));
+				}
+			putc('\n', stdout);
 		}
 }
 
