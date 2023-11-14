@@ -4,6 +4,10 @@
 
 #include "tictactoe.h"
 
+#ifdef STANDALONE
+#include "tictac_node.c" // This is ugly as sin, but it works for now.
+#endif
+
 /*
  * Sample code for the tictactoe game with the aim of 5-in-a-row.
  *
@@ -234,8 +238,6 @@ int tictac_auto(const tictactoe_board_t board, int* x, int* y, uint8_t s)
 /***********************************************************/
 
 #ifdef STANDALONE
-#include "tictac_node.c" // This is ugly as sin, but it works for now.
-
 void print_board(const tictactoe_board_t board)
 {
 	for(int i = 0; i < TICTACTOE_BOARD; ++i)
