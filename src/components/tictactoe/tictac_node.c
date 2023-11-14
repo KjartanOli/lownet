@@ -149,11 +149,11 @@ uint32_t tictac_checksum(const tictactoe_t* b)
  * - Specify the move by updating *x and *y (pointers)
  * - Return value 0 on making a succesful move (always!)
  */
-
-int tictac_move(const tictactoe_t* b, int* xp, int* yp, uint8_t s, uint32_t time_ms)
+int tictac_move(const tictactoe_board_t board, int* xp, int* yp, uint8_t s, uint32_t time_ms)
 {
 	/*
 	 * TODO: figure out a better move!
 	 */
-	return tictac_auto(b, xp, yp, s);
+
+	return tictac_auto(board, xp, yp, s);
 }
