@@ -100,9 +100,9 @@ int tictac_set(tictactoe_board_t board, uint8_t i, uint8_t j, square_value_t s)
 	return 0;
 }
 
-void empty_board(tictactoe_t* b)
+void empty_board(tictactoe_board_t board)
 {
-	memset(b->board, 0, TICTACTOE_N);
+	memset(board, 0, sizeof(tictactoe_board_t));
 }
 
 /*
