@@ -37,8 +37,8 @@ typedef struct __attribute__((__packed__))
 int tictac_encode(const tictactoe_t* b, tictactoe_payload_t* p);
 int tictac_decode(const tictactoe_payload_t* p, tictactoe_t* b);
 
-int tictac_game_over(const tictactoe_t* b);
 int tictac_auto(const tictactoe_t* b, int* x, int* y, uint8_t s);
+int tictac_game_over(const tictactoe_board_t board);
 
 int tictac_set(tictactoe_board_t b, uint8_t i, uint8_t j, square_value_t s);
 square_value_t tictac_get(const tictactoe_board_t b, uint8_t i, uint8_t j);

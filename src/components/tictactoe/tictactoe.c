@@ -108,7 +108,7 @@ void empty_board(tictactoe_t* b)
 /*
  * Returns the winner, or zero if no winner
  */
-int tictac_game_over(const tictactoe_t* b)
+int tictac_game_over(const tictactoe_board_t board)
 {
 	int evaluate(int i, int j, int dx, int dy)
 	{
@@ -125,14 +125,14 @@ int tictac_game_over(const tictactoe_t* b)
 		if (i1 < 0 || i1 >= TICTACTOE_BOARD ||
 				j1 < 0 || j1 >= TICTACTOE_BOARD)
 			return 0;
-		uint8_t s = tictac_get(b, i, j);
+		square_value_t s = tictac_get(board, i, j);
 		if (!s)
 			return 0;
 		for(int k = 0; k < 4; ++k) // four more and we are done!
 			{
 				i += dx;
 				j += dy;
-				if (tictac_get(b, i, j) != s)
+				if (tictac_get(board, i, j) != s)
 					return 0;
 			}
 		return s; // winner found! 1 or 2
