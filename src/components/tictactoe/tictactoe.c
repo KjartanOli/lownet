@@ -253,25 +253,25 @@ void print_board(const tictactoe_board_t board)
 int main(int argc, char** argv)
 {
 	tictactoe_payload_t payload;
-	tictactoe_t b;
+	tictactoe_board_t board;
 	int res, x, y;
 	int round = 0;
 
-	empty_board(&b);
+	empty_board(board);
 
 	/*
 	 * Test the game by playing up to 10 rounds
 	 */
-	while (!(res = tictac_game_over(&b)))
+	while (!(res = tictac_game_over(board)))
 		{
 			/* check that encoding/decoding to packet format works */
-			if (tictac_encode(&b, &payload))
+			if (tictac_encode(board, &payload))
 				{
 					printf("Board encoding failed!\n");
 					return -1;
 				}
-			empty_board(&b); // no cheating!
-			if (tictac_decode(&payload, &b))
+			empty_board(board); // no cheating!
+			if (tictac_decode(&payload, board))
 				{
 					printf("Board decoding failed!\n");
 					return -1;
@@ -279,12 +279,12 @@ int main(int argc, char** argv)
 
 			if (!(round & 1))
 				{
-					print_board(&b);
-					tictac_move(&b, &x, &y, 1, 3);
-					tictac_set(&b, x, y, 1);
+					print_board(board);
+					tictac_move(board, &x, &y, 1, 3);
+					tictac_set(board, x, y, 1);
 				}
-			else if (!tictac_auto(&b, &x, &y, 2) &&
-							 !tictac_set(&b, x, y, 2))
+			else if (!tictac_auto(board, &x, &y, 2) &&
+							 !tictac_set(board, x, y, 2))
 				{
 					// ok move!
 				}
@@ -295,7 +295,7 @@ int main(int argc, char** argv)
 				}
 			round++;
 		}
-	print_board(&b);
+	print_board(board);
 	printf("Result: %d\n", res);
 	return 0;
 }
