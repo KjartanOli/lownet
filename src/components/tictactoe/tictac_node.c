@@ -103,24 +103,24 @@ void base3_decode_squares(uint8_t squares, uint8_t* buffer)
 		buffer[i] = B % 3;
 }
 
-square_value_t tictac_base2_get(const tictactoe_board_t board, uint8_t i, uint8_t j)
+square_value_t tictac_base2_get(const tictactoe_board_t* board, uint8_t i, uint8_t j)
 {
 	uint8_t idx = (i + TICTACTOE_BOARD * j) / 4;
 	uint8_t sqr = (i + TICTACTOE_BOARD * j) % 4;
-	return get_square(board[idx], sqr);
+	return get_square(board->data[idx], sqr);
 }
 
-int tictac_base2_set(tictactoe_board_t board, uint8_t i, uint8_t j, square_value_t s)
+int tictac_base2_set(tictactoe_board_t* board, uint8_t i, uint8_t j, square_value_t s)
 {
 	if (tictac_base2_get(board, i, j))
 		return -1;
 	uint8_t idx = (i + TICTACTOE_BOARD * j) / 4;
 	uint8_t sqr = (i + TICTACTOE_BOARD * j) % 4;
-	board[idx] = set_square(board[idx], sqr, s);
+	board->data[idx] = set_square(board->data[idx], sqr, s);
 	return 0;
 }
 
-void print_board_base2(const tictactoe_board_t b)
+void print_board_base2(const tictactoe_board_t* b)
 {
 	for(int i = 0; i < TICTACTOE_BOARD; ++i)
 		{
@@ -134,10 +134,10 @@ void print_board_base2(const tictactoe_board_t b)
 		}
 }
 
-uint32_t tictac_checksum(const tictactoe_board_t board)
+uint32_t tictac_checksum(const tictactoe_board_t* board)
 {
 	/* Then compute the CRC code */
-	return crc24(board, sizeof(tictactoe_board_t));
+	return crc24((const uint8_t*) &board->data, sizeof(tictactoe_board_t));
 }
 
 /*
@@ -149,7 +149,7 @@ uint32_t tictac_checksum(const tictactoe_board_t board)
  * - Specify the move by updating *x and *y (pointers)
  * - Return value 0 on making a succesful move (always!)
  */
-int tictac_move(const tictactoe_board_t board, int* xp, int* yp, uint8_t s, uint32_t time_ms)
+int tictac_move(const tictactoe_board_t* board, int* xp, int* yp, uint8_t s, uint32_t time_ms)
 {
 	/*
 	 * TODO: figure out a better move!
