@@ -19,6 +19,73 @@
  * Oct 29, 2023 -- esa@hi.is
  */
 
+static const uint8_t MASKS[] = {
+	0b11000000,
+	0b00110000,
+	0b00001100,
+	0b00000011
+};
+
+static const uint8_t SHIFTS[] = {6, 4, 2, 0};
+
+// Usage: get_square(SQUARES, IDX)
+// Pre:   0 <= IDX < 4
+// Value: The value of square IDX within SQUARES
+square_value_t get_square(uint8_t squares, uint8_t idx)
+{
+	return (squares & MASKS[idx]) >> SHIFTS[idx];
+}
+
+// Usage: set_square(SQUARES, IDX, VALUE)
+// Pre:   0 <= IDX < 4
+// Value: SQUARES updated such that square IDX has value VALUE
+uint8_t set_square(uint8_t squares, uint8_t idx, square_value_t value)
+{
+	return (squares & (~MASKS[idx])) + (value << SHIFTS[idx]);
+}
+
+// Usage: base2_encode_squares(SQUARES)
+// Pre:   SQUARES != NULL, SQUARES is of length 4
+// Value: The base-2 encoding of of SQUARES
+uint8_t base2_encode_squares(const uint8_t* squares)
+{
+	uint8_t r = 0;
+	for (size_t i = 0; i < 4; ++i)
+		r = set_square(r, i, squares[i]);
+
+	return r;
+}
+
+// Usage: base2_decode_squares(SQUARES, BUFFER)
+// Pre:   BUFFER != NULL, BUFFER is of length 4
+// Post:  The squares encoded in SQUARES have been decoded into BUFFER
+void base2_decode_squares(uint8_t squares, uint8_t* buffer)
+{
+	for (size_t i = 0; i < 4; ++i)
+		buffer[i] = get_square(squares, i);
+}
+
+// Usage: base3_encode_squares(SQUARES)
+// Pre:   SQUARES != NULL, SQUARES is of length 5
+// Value: The base-3 encoding of of SQUARES
+uint8_t base3_encode_squares(const uint8_t* squares)
+{
+	uint8_t v = 0;
+	for (size_t i = 0, B = 1; i < 5; ++i, B *= 3)
+			v += squares[i] * B;
+
+	return v;
+}
+
+// Usage: base3_decode_squares(SQUARES, BUFFER)
+// Pre:   BUFFER != NULL, BUFFER is of length 5
+// Post:  The squares encoded in SQUARES have been decoded into BUFFER
+void base3_decode_squares(uint8_t squares, uint8_t* buffer)
+{
+	for (size_t i = 0, B = squares; i < 5; ++i, B /= 3)
+		buffer[i] = B % 3;
+}
+
 int tictac_encode(const tictactoe_board_t* board, tictactoe_payload_t* p)
 {
 	/*
@@ -130,7 +197,7 @@ square_value_t tictac_get(const tictactoe_board_t* board, uint8_t i, uint8_t j)
 
 int tictac_set(tictactoe_board_t* board, uint8_t i, uint8_t j, square_value_t s)
 {
-	if (tictac_base2_get(board, i, j))
+	if (tictac_get(board, i, j))
 		return -1;
 	uint8_t idx = (i + TICTACTOE_BOARD * j) / 4;
 	uint8_t sqr = (i + TICTACTOE_BOARD * j) % 4;
