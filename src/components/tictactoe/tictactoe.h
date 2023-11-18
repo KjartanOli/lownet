@@ -3,16 +3,13 @@
 
 #include <assert.h>
 
+#define TICTAC_B2_SQUARES_PER_BYTE 4
+#define TICTAC_B3_SQUARES_PER_BYTE 5
+
 #define TICTACTOE_BOARD 30 // one side of the board
-#define TICTACTOE_N (30*30) // number of squares
-#define TICTACTOE_N2 225 // data size with 4 squares-per-byte
-#define TICTACTOE_N3 180 // data size with 5 squares-per-byte (=30^2/5)
-
-#define TICTAC_B2_SQUARES_PER_BYTE (TICTACTOE_N / TICTACTOE_N2)
-#define TICTAC_B3_SQUARES_PER_BYTE (TICTACTOE_N / TICTACTOE_N3)
-
-static_assert(TICTAC_B2_SQUARES_PER_BYTE == 4);
-static_assert(TICTAC_B3_SQUARES_PER_BYTE == 5);
+#define TICTACTOE_N (TICTACTOE_BOARD * TICTACTOE_BOARD) // number of squares
+#define TICTACTOE_N2 (TICTACTOE_N / TICTAC_B2_SQUARES_PER_BYTE) // data size with 4 squares-per-byte
+#define TICTACTOE_N3 (TICTACTOE_N / TICTAC_B3_SQUARES_PER_BYTE) // data size with 5 squares-per-byte (=30^2/5)
 
 /*
  * Data invariant:
