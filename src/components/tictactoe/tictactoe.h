@@ -24,7 +24,7 @@ static_assert(TICTAC_B3_SQUARES_PER_BYTE == 5);
  * Each byte is laid out as follows:
  * 00|00|00|00
  *  ^  ^  ^  ^
- *  0  1  2  3
+ *  3  2  1  0
  */
 typedef struct
 {

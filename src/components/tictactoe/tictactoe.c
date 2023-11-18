@@ -20,13 +20,13 @@
  */
 
 static const uint8_t MASKS[] = {
-	0b11000000,
-	0b00110000,
+	0b00000011,
 	0b00001100,
-	0b00000011
+	0b00110000,
+	0b11000000,
 };
 
-static const uint8_t SHIFTS[] = {6, 4, 2, 0};
+static const uint8_t SHIFTS[] = {0, 2, 4, 6};
 
 // Usage: get_square(SQUARES, IDX)
 // Pre:   0 <= IDX < 4
