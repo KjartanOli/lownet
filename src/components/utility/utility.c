@@ -11,11 +11,6 @@ int util_printable(char c) {
 	);
 }
 
-uint8_t min(uint8_t a, uint8_t b)
-{
-	return (a <= b) ? a : b;
-}
-
 uint32_t time_to_milliseconds(const lownet_time_t* time)
 {
 	return time->seconds * LOWNET_TIME_RESOLUTION + time->parts;
