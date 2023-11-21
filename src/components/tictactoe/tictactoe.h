@@ -26,7 +26,7 @@
 typedef struct
 {
 	uint8_t data[TICTACTOE_N2];
-} tictactoe_board_t;
+} tictactoe_t;
 
 typedef enum
 {
@@ -45,13 +45,13 @@ typedef struct __attribute__((__packed__))
 } tictactoe_payload_t;
 
 
-int tictac_encode(const tictactoe_board_t* board, tictactoe_payload_t* p);
-int tictac_decode(const tictactoe_payload_t* p, tictactoe_board_t* board);
+int tictac_encode(const tictactoe_t* board, tictactoe_payload_t* p);
+int tictac_decode(const tictactoe_payload_t* p, tictactoe_t* board);
 
-int tictac_game_over(const tictactoe_board_t* board);
-int tictac_auto(const tictactoe_board_t* b, int* x, int* y, uint8_t s);
+int tictac_game_over(const tictactoe_t* board);
+int tictac_auto(const tictactoe_t* b, uint8_t* x, uint8_t* y, uint8_t s);
 
-int tictac_set(tictactoe_board_t* b, uint8_t i, uint8_t j, square_value_t s);
-square_value_t tictac_get(const tictactoe_board_t* b, uint8_t i, uint8_t j);
+int tictac_set(tictactoe_t* b, uint8_t i, uint8_t j, square_value_t s);
+square_value_t tictac_get(const tictactoe_t* b, uint8_t i, uint8_t j);
 
 #endif

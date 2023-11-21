@@ -86,7 +86,7 @@ void base3_decode_squares(uint8_t squares, uint8_t* buffer)
 		buffer[i] = B % 3;
 }
 
-int tictac_encode(const tictactoe_board_t* board, tictactoe_payload_t* p)
+int tictac_encode(const tictactoe_t* board, tictactoe_payload_t* p)
 {
 	/*
 	 * Loop invariant:
@@ -135,7 +135,7 @@ int tictac_encode(const tictactoe_board_t* board, tictactoe_payload_t* p)
  * Decode the dense packet representation back to the
  * internal representation in memory that is fast to work with
  */
-int tictac_decode(const tictactoe_payload_t* p, tictactoe_board_t* board)
+int tictac_decode(const tictactoe_payload_t* p, tictactoe_t* board)
 {
 	/*
 	 * Loop invariant:
@@ -188,32 +188,30 @@ int tictac_decode(const tictactoe_payload_t* p, tictactoe_board_t* board)
  * set_board() sets piece s to (i,j), return zero on success.
  *
  */
-square_value_t tictac_get(const tictactoe_board_t* board, uint8_t i, uint8_t j)
+square_value_t tictac_get(const tictactoe_t* board, uint8_t i, uint8_t j)
 {
-	uint8_t idx = (i + TICTACTOE_BOARD * j) / 4;
-	uint8_t sqr = (i + TICTACTOE_BOARD * j) % 4;
+	uint8_t idx = (i * TICTACTOE_BOARD + j) / 4;
+	uint8_t sqr = (i * TICTACTOE_BOARD + j) % 4;
 	return get_square(board->data[idx], sqr);
 }
 
-int tictac_set(tictactoe_board_t* board, uint8_t i, uint8_t j, square_value_t s)
+int tictac_set(tictactoe_t* board, uint8_t i, uint8_t j, square_value_t s)
 {
-	if (tictac_get(board, i, j))
-		return -1;
-	uint8_t idx = (i + TICTACTOE_BOARD * j) / 4;
-	uint8_t sqr = (i + TICTACTOE_BOARD * j) % 4;
+	uint8_t idx = (i * TICTACTOE_BOARD + j) / 4;
+	uint8_t sqr = (i * TICTACTOE_BOARD + j) % 4;
 	board->data[idx] = set_square(board->data[idx], sqr, s);
 	return 0;
 }
 
-void empty_board(tictactoe_board_t* board)
+void empty_board(tictactoe_t* board)
 {
-	memset(board, 0, sizeof(tictactoe_board_t));
+	memset(board, 0, sizeof(tictactoe_t));
 }
 
 /*
  * Returns the winner, or zero if no winner
  */
-int tictac_game_over(const tictactoe_board_t* board)
+int tictac_game_over(const tictactoe_t* board)
 {
 	int evaluate(int i, int j, int dx, int dy)
 	{
@@ -270,7 +268,7 @@ int my_random(void)
  * Simple heuristic for our end.
  * Returns zero on a successful choice
  */
-int tictac_auto(const tictactoe_board_t* board, int* x, int* y, uint8_t s)
+int tictac_auto(const tictactoe_t* board, uint8_t* x, uint8_t* y, uint8_t s)
 {
 	int best_v = -1;
 	int best_i = 0;
@@ -331,7 +329,7 @@ int tictac_auto(const tictactoe_board_t* board, int* x, int* y, uint8_t s)
 /***********************************************************/
 
 #ifdef STANDALONE
-void print_board(const tictactoe_board_t* board)
+void print_board(const tictactoe_t* board)
 {
 	for(int i = 0; i < TICTACTOE_BOARD; ++i)
 		{
@@ -348,8 +346,8 @@ void print_board(const tictactoe_board_t* board)
 int main(int argc, char** argv)
 {
 	tictactoe_payload_t payload;
-	tictactoe_board_t board;
-	int res, x, y;
+	tictactoe_t board;
+	uint8_t res, x, y;
 	int round = 0;
 
 	empty_board(&board);

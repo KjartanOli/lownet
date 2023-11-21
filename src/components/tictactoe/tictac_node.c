@@ -36,10 +36,9 @@ uint32_t crc24(const uint8_t* buf, size_t len)
 	return reg;
 }
 
-uint32_t tictac_checksum(const tictactoe_board_t* board)
+uint32_t tictac_checksum(const tictactoe_t* board)
 {
-	/* Then compute the CRC code */
-	return crc24((const uint8_t*) &board->data, sizeof(tictactoe_board_t));
+	return crc24((const uint8_t*) &board->data, sizeof(tictactoe_t));
 }
 
 /*
@@ -51,7 +50,7 @@ uint32_t tictac_checksum(const tictactoe_board_t* board)
  * - Specify the move by updating *x and *y (pointers)
  * - Return value 0 on making a succesful move (always!)
  */
-int tictac_move(const tictactoe_board_t* board, int* xp, int* yp, uint8_t s, uint32_t time_ms)
+int tictac_move(const tictactoe_t* board, int* xp, int* yp, uint8_t s, uint32_t time_ms)
 {
 	/*
 	 * TODO: figure out a better move!
