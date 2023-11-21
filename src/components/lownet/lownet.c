@@ -363,6 +363,7 @@ void lownet_service_main(void* pvTaskParam) {
 				case LOWNET_PROTOCOL_COMMAND:
 				case LOWNET_PROTOCOL_CHAT:
 				case LOWNET_PROTOCOL_PING:
+				case LOWNET_PROTOCOL_GAME:
 					net_system.dispatch(&frame);
 					break;
 

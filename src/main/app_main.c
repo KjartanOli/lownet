@@ -77,6 +77,10 @@ void app_frame_dispatch(const lownet_frame_t* frame) {
 		case LOWNET_PROTOCOL_COMMAND:
 			command_receive(frame);
 			break;
+
+		case LOWNET_PROTOCOL_GAME:
+			game_receive(frame);
+			break;
 	}
 }
 
