@@ -102,6 +102,7 @@ typedef struct __attribute__((__packed__))
 
 /******************************************************************************/
 
+void game_register_command(char* args);
 void game_register(uint8_t snode); // register to game server
 void game_receive(const lownet_frame_t* frame); // handle the incoming packets here
 void game_init(void);

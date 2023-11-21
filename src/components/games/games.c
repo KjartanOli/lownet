@@ -12,6 +12,7 @@
 #include "games.h"
 #include "tictactoe.h"
 #include "serial_io.h"
+#include "utility.h"
 
 /* #include "gameserver.h" // only our nodes can do both! */
 
@@ -281,4 +282,22 @@ void game_init(void)
 							NULL,
 							PRIORITY_GAME,
 							0);
+}
+
+void game_register_command(char* args)
+{
+	if (!args)
+		{
+			serial_write_line("A node id must be provided\n");
+			return;
+		}
+
+	uint8_t dest = (uint8_t) hex_to_dec(args + 2);
+	if (dest == 0)
+		{
+			serial_write_line("Invalid node id\n");
+			return;
+		}
+
+	game_register(dest);
 }

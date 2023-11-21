@@ -20,6 +20,7 @@
 #include "chat.h"
 #include "ping.h"
 #include "command.h"
+#include "games.h"
 
 // Usage: help_command(NULL)
 // Pre:   None, this command takes no arguments.
@@ -33,6 +34,7 @@ const command_t commands[] = {
 	{"date",    "/date                        Print the current time", date_command},
 	{"setkey",  "/setkey [KEY|0|1]            Set the encryption key to use.  If no key is provided encryption is disabled", crypt_setkey_command},
 	{"id",      "/id                          Print your ID", id_command},
+	{"game",    "/game ID                     Register for a game at gameserver ID", game_register_command},
 	{"snoop",   "/snoop [none|ping|chat|all]  Set the level of snooping on other's communications", snoop_command},
 	{"mask",    "/mask ID                     Pretend to be node ID", mask_command},
 	{"unmask",  "/unmask                      Stop id masking", unmask_command},
@@ -97,6 +99,9 @@ void app_main(void)
 
 	// Initialize the command module
 	command_init();
+
+	// Initialise the game module
+	game_init();
 
 		// Dummy implementation -- this isn't true network time!  Following 2
 	//	lines are not needed when an actual source of network time is present.
