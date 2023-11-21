@@ -190,15 +190,15 @@ int tictac_decode(const tictactoe_payload_t* p, tictactoe_t* board)
  */
 square_value_t tictac_get(const tictactoe_t* board, uint8_t i, uint8_t j)
 {
-	uint8_t idx = (i * TICTACTOE_BOARD + j) / 4;
-	uint8_t sqr = (i * TICTACTOE_BOARD + j) % 4;
+	uint8_t idx = (i + TICTACTOE_BOARD * j) / 4;
+	uint8_t sqr = (i + TICTACTOE_BOARD * j) % 4;
 	return get_square(board->data[idx], sqr);
 }
 
 int tictac_set(tictactoe_t* board, uint8_t i, uint8_t j, square_value_t s)
 {
-	uint8_t idx = (i * TICTACTOE_BOARD + j) / 4;
-	uint8_t sqr = (i * TICTACTOE_BOARD + j) % 4;
+	uint8_t idx = (i + TICTACTOE_BOARD * j) / 4;
+	uint8_t sqr = (i + TICTACTOE_BOARD * j) % 4;
 	board->data[idx] = set_square(board->data[idx], sqr, s);
 	return 0;
 }
