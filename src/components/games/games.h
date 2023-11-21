@@ -116,6 +116,6 @@ void tictac_display_board(const tictactoe_t* ttt);
  */
 uint32_t tictac_checksum(const tictactoe_t* b);
 int tictac_move(const tictactoe_t* b,
-								int* xp, int* yp,
+								uint8_t* xp, uint8_t* yp,
 								uint8_t s, uint32_t time_ms);
 #endif

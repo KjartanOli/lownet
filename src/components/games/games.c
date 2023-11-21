@@ -95,7 +95,7 @@ void game_register(uint8_t snode)
 	lownet_send(&pkt);
 }
 
-int send_move(int x, int y)
+int send_move(uint8_t x, uint8_t y)
 {
 	lownet_frame_t pkt;
 	game_action_t *ga = (game_action_t*) pkt.payload;
