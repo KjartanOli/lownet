@@ -10,7 +10,8 @@ int util_printable(char c);
 // Usage: min(A, B)
 // Pre:   None, other than those imposed by the type system
 // Value: The smaller of A and B
-uint8_t min(uint8_t a, uint8_t b);
+inline uint8_t min(uint8_t a, uint8_t b) {return (a <= b) ? a : b;}
+
 
 uint32_t hex_to_dec(const char* hex_digits);
 
