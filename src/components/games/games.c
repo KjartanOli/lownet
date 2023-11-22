@@ -14,8 +14,6 @@
 #include "serial_io.h"
 #include "utility.h"
 
-/* #include "gameserver.h" // only our nodes can do both! */
-
 #define TAG "games.c"
 
 #define PRIORITY_GAME 5
@@ -185,12 +183,6 @@ void game_receive(const lownet_frame_t* frame)
 {
 	const game_msg_header_t* g = (const game_msg_header_t*) frame->payload;
 
-	if (gameserver_active() >= 0)
-		{
-			gameserver_receive(frame);
-			return;
-		}
-
 	if (g->game != GAME_TICTACTOE) /* Ignore silently games we have no idea about	 */
 		{
 			ESP_LOGW(TAG, "unsupported game");
@@ -251,9 +243,6 @@ void game_receive(const lownet_frame_t* frame)
 					case GAME_PACKET_WINNER_2:
 					case GAME_PACKET_TIE:
 						status = GAME_OVER;
-						// FIX/CHECK: without delay game_register sometimes fails?!
-						vTaskDelay(100 / portTICK_PERIOD_MS);
-						game_register(0xf0); // stress test, remove later FIX FIX
 						break;
 					}
 				break;
