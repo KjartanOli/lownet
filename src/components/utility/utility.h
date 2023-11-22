@@ -12,6 +12,15 @@ int util_printable(char c);
 // Value: The smaller of A and B
 inline uint8_t min(uint8_t a, uint8_t b) {return (a <= b) ? a : b;}
 
+// Usage: int_min(A, B)
+// Pre:   None
+// Value: The smaller of A and B
+inline int int_min(int a, int b) {return (a <= b) ? a : b;}
+
+// Usage: int_max(A, B)
+// Pre:   None
+// Value: The larger of A and B
+inline int int_max(int a, int b) {return (a >= b) ? a : b;}
 
 uint32_t hex_to_dec(const char* hex_digits);
 

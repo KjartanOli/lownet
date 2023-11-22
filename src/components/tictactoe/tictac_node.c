@@ -11,6 +11,21 @@
 
 #include "tictactoe.h"
 
+#ifndef STANDALONE
+#include "utility.h"
+#else
+	// Usage: int_min(A, B)
+	// Pre:   None, other than those imposed by the type system
+	// Value: The smaller of A and B
+	inline int int_min(int a, int b) {return (a <= b) ? a : b;}
+
+	// Usage: int_max(A, B)
+	// Pre:   None, other than those imposed by the type system
+	// Value: The larger of A and B
+	inline int int_max(int a, int b) {return (a >= b) ? a : b;}
+#endif
+
+
 /*
  * Identical to lownet_crc()
  *
@@ -159,10 +174,141 @@ void init_attention_field(const tictactoe_t* board, attention_field_t* attention
 		}
 }
 
+// Usage: maximise(BOARD, ATTENTION, MAX_DEPTH, DEPTH, PLAYER)
+// Pre:   BOARD != NULL
+//        ATTENTION != NULL
+//        DEPTH <= MAX_DEPTH
+//        PLAYER == PLAYER1 or PLAYER == PLAYER2
+// Value: The maximum value achievable from BOARD, while only paying
+//        attention to moves within ATTENTION
+int maximise(const tictactoe_t* board,
+						 attention_field_t* attention,
+						 uint8_t max_depth,
+						 uint8_t depth,
+						 square_value_t player,
+						 int alpha,
+						 int beta);
+
+// Usage: minimise(BOARD, ATTENTION, MAX_DEPTH, DEPTH, PLAYER)
+// Pre:   BOARD != NULL
+//        ATTENTION != NULL
+//        DEPTH <= MAX_DEPTH
+//        PLAYER == PLAYER1 or PLAYER == PLAYER2
+// Value: The minimum value achievable from BOARD, while only paying
+//        attention to moves within ATTENTION
+int minimise(const tictactoe_t* board,
+						 attention_field_t* attention,
+						 uint8_t max_depth,
+						 uint8_t depth,
+						 square_value_t player,
+						 int alpha,
+						 int beta);
+
+#define MAX_VALUE 1000
+#define MIN_VALUE (-MAX_VALUE)
+
+int maximise(const tictactoe_t* board,
+						 attention_field_t* attention,
+						 uint8_t max_depth,
+						 uint8_t depth,
+						 square_value_t player,
+						 int alpha,
+						 int beta)
+{
+	// TODO determinate whether MIN_VALUE or 0 produces better results
+	if (depth == max_depth)
+		return MIN_VALUE;
+		// return 0;
+
+	{
+		int winner;
+		if ((winner = tictac_game_over(board)))
+			{
+				if (winner == player)
+					return MAX_VALUE - depth;
+				else
+					return MIN_VALUE + depth;
+			}
+	}
+
+	tictactoe_t move;
+	memcpy(&move, board, sizeof move);
+	square_value_t next_player = (player == PLAYER1) ? PLAYER2 : PLAYER1;
+	int best = MIN_VALUE;
+
+	field_expand_maybe(board, attention);
+
+	for (uint8_t i = upper_bound(attention), l = lower_bound(attention); i < l; ++i)
+		for (uint8_t j = left_bound(attention), r = right_bound(attention); j < r; ++j)
+			if (square_free(board, i, j))
+				{
+					tictac_set(&move, i, j, player);
+					int value = minimise(&move, attention, max_depth, depth + 1, next_player, alpha, beta);
+					tictac_set(&move, i, j, EMPTY);
+
+					best = int_max(best, value);
+					alpha = int_max(alpha, best);
+
+					if (beta <= alpha)
+						return best;
+				}
+
+	return best;
+}
+
+int minimise(const tictactoe_t* board,
+						 attention_field_t* attention,
+						 uint8_t max_depth,
+						 uint8_t depth,
+						 square_value_t player,
+						 int alpha,
+						 int beta)
+{
+	// TODO determinate whether MAX_VALUE or 0 produces better results
+	if (depth == max_depth)
+		return MAX_VALUE;
+	//return 0;
+
+	{
+		int winner;
+		if ((winner = tictac_game_over(board)))
+			{
+				if (winner == player)
+					return MIN_VALUE + depth;
+				else
+					return MAX_VALUE - depth;
+			}
+	}
+	tictactoe_t move;
+	memcpy(&move, board, sizeof move);
+	square_value_t next_player = (player == PLAYER1) ? PLAYER2 : PLAYER1;
+	int best = MAX_VALUE;
+
+	field_expand_maybe(board, attention);
+
+	for (uint8_t i = upper_bound(attention), l = lower_bound(attention); i < l; ++i)
+		for (uint8_t j = left_bound(attention), r = right_bound(attention); j < r; ++j)
+			if (square_free(board, i, j))
+				{
+					tictac_set(&move, i, j, player);
+					int value = maximise(&move, attention, max_depth, depth + 1, next_player, alpha, beta);
+					tictac_set(&move, i, j, EMPTY);
+
+					best = int_min(best, value);
+					beta = int_min(beta, best);
+
+					if (beta <= alpha)
+						return best;
+				}
+
+	return best;
+}
+
 int tictac_move(const tictactoe_t* board, int* xp, int* yp, uint8_t s, uint32_t time_ms)
 {
 	/*
 	 * TODO: figure out a better move!
 	 */
+
 	return tictac_auto(board, xp, yp, s);
 }
