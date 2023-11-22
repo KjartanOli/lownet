@@ -41,14 +41,12 @@ static SemaphoreHandle_t game_turn; // half-broken synchronization method, fix!
 
 /*
  * Display the tictactoe board
- * - some VT100 codes to keep the board at the top-left corner
  *
  */
 void tictac_display_board(const tictactoe_t* ttt)
 {
 	static char buf[TICTACTOE_BOARD + 1];
 
-	serial_write_line("\e7\e[;H"); // save pos and to upper left
 	for (int y = TICTACTOE_BOARD - 1; y; y--)
 		{
 			for (int x = 0; x < TICTACTOE_BOARD; x++)
@@ -66,8 +64,6 @@ void tictac_display_board(const tictactoe_t* ttt)
 			buf[TICTACTOE_BOARD] = '\0';
 			serial_write_line(buf);
 		}
-	// restore position and one up as newline follows
-	serial_write_line("\e8\e[A");
 }
 
 /******************************************************************************/
