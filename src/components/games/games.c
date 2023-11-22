@@ -216,10 +216,7 @@ void game_receive(const lownet_frame_t* frame)
 
 				if (status != GAME_WAITING &&
 						current.seq != gs->seq)
-					{
-						ESP_LOGW(TAG, "invalid game seq");
-						return;
-					}
+					return;
 
 				/* store the state and decode the board */
 				current = *gs;
