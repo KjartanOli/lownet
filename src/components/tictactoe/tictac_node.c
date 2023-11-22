@@ -7,6 +7,7 @@
 
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "tictactoe.h"
 
@@ -55,6 +56,15 @@ int tictac_move(const tictactoe_t* board, int* xp, int* yp, uint8_t s, uint32_t 
 	/*
 	 * TODO: figure out a better move!
 	 */
+// Usage: square_free(BOARD, X, Y)
+// Pre:   0 <= X < TICTACTOE_BOARD
+//        0 <= Y < TICTACTOE_BOARD
+// Value: true if square X,Y is free on BOARD
+bool square_free(const tictactoe_t* board, uint8_t x, uint8_t y)
+{
+	return tictac_get(board, x, y) == EMPTY;
+}
+
 
 	return tictac_auto(board, xp, yp, s);
 }
