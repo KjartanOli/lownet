@@ -145,15 +145,15 @@ void my_policy(void *p)
 					{
 						uint8_t me = lownet_get_device_id();
 						uint8_t s = 2 - (current.round & 1);
-						int x, y;
+						uint8_t x, y;
 
 						if ((s==1 && current.node_1 == me) ||
 								(s==2 && current.node_2 == me))
 							{
 								vTaskDelay(200 / portTICK_PERIOD_MS);
 								if (!tictac_move(&tictactoe, &x, &y, s, 3000) &&
-										x >= 0 && x < TICTACTOE_BOARD &&
-										y >= 0 && y < TICTACTOE_BOARD)
+										x < TICTACTOE_BOARD &&
+										y < TICTACTOE_BOARD)
 									{
 										/* make the move on board and send it */
 										tictac_set(&tictactoe, x, y, s);
@@ -161,7 +161,7 @@ void my_policy(void *p)
 									}
 								else
 									{
-										ESP_LOGE(TAG, "move (%d,%d) failed for player %d", (int) x, (int) y, (int) s);
+										ESP_LOGE(TAG, "move (%d,%d) failed for player %d", x, y, (int) s);
 									}
 							}
 					}
