@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <sys/time.h>
 
 #include "tictactoe.h"
 
@@ -304,11 +305,57 @@ int minimise(const tictactoe_t* board,
 	return best;
 }
 
-int tictac_move(const tictactoe_t* board, int* xp, int* yp, uint8_t s, uint32_t time_ms)
+static uint32_t get_time()
 {
-	/*
-	 * TODO: figure out a better move!
-	 */
+	struct timeval tv_now;
+	gettimeofday(&tv_now, NULL);
+	return (uint32_t) tv_now.tv_sec * 1000000L + (uint32_t) tv_now.tv_usec;
+}
+
+#define MAX_DEPTH 10
+int tictac_move(const tictactoe_t* board, uint8_t* xp, uint8_t* yp, uint8_t s, uint32_t time_ms)
+{
+	uint32_t old = get_time();
+
+	int best = MIN_VALUE;
+	int alpha = MIN_VALUE;
+	int beta = MAX_VALUE;
+
+	attention_field_t attention = {{0,0}, 8, 8};
+	/* init_attention_field(board, &attention); */
+	tictactoe_t move;
+	memcpy(&move, board, sizeof move);
+	for (uint8_t depth = 3; time_ms > 300 && depth <= MAX_DEPTH; ++depth)
+		{
+			for (uint8_t i = upper_bound(&attention), l = lower_bound(&attention); time_ms > 300 && i < l; ++i)
+				{
+					for (uint8_t j = left_bound(&attention), r = right_bound(&attention); time_ms > 300 && j < r; ++j)
+						{
+							if (square_free(board, i, j))
+								{
+									tictac_set(&move, i, j, s);
+									int value = maximise(&move, &attention, depth, 0, s, alpha, beta);
+									tictac_set(&move, i, j, EMPTY);
+
+									if (value > best)
+										{
+											best = value;
+											*xp = i;
+											*yp = j;
+										}
+
+									alpha = int_max(alpha, best);
+									if (beta <= alpha)
+										return 0;
+								}
+
+							uint32_t new = get_time();
+							time_ms -= (new - old);
+							old = new;
+						}
+				}
+		}
+	return 0;
 
 	return tictac_auto(board, xp, yp, s);
 }
